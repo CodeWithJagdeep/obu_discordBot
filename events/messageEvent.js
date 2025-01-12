@@ -26,7 +26,8 @@ const messageEvent = (client) => {
     } else if (command.toLowerCase() == "spam") {
       CommandsController._handleSpam(message);
     } else {
-      await message.channel.send(formatMessage("Command not recognized."));
+      return;
+      //   await message.channel.send(formatMessage("Command not recognized."));
     }
   });
 };
