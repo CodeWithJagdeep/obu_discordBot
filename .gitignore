@@ -1,3 +1,19 @@
-node_modules
-.env.env
+# Node.js dependencies
+/node_modules/
+
+# Environment variables file
+.env
+
+# Configuration files
 config.js
+
+# Logs
+*.log
+
+# Optional: You can add other temporary or build files to ignore
+/dist
+/build
+
+# Operating system files
+.DS_Store
+Thumbs.db
