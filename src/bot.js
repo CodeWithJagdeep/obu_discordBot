@@ -54,7 +54,17 @@ class MyBot {
       console.error("Error fetching guild or channels:", error);
     }
   }
-  
+
+  async _dummyRequest() {
+    setInterval(async () => {
+      try {
+        const request = await axios.get("https://obu-discordbot.onrender.com");
+        console.log("done");
+      } catch (err) {
+        console.log("done", err);
+      }
+    }, 60 * 1000);
+  }
 
   async start() {
     this.client.login(process.env.BOT_TOKEN); // Ensure your token is set in the environment variables
@@ -62,6 +72,7 @@ class MyBot {
     this.onJoinUser();
     this.manageCommand();
     this._handleMeme();
+    this._dummyRequest();
     // this._handleDisBoard();
   }
 }
