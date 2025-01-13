@@ -10,6 +10,7 @@ const {
 const messageEvent = require("../events/messageEvent");
 const { guildMemberAdd } = require("../events/guildMemberAdd");
 const MemeController = require("../Controllers/MemeController");
+const { memeEvents } = require("../events/memeEvent");
 
 class MyBot {
   constructor() {
@@ -39,16 +40,28 @@ class MyBot {
     });
   }
 
-  _handleMeme() {
-    MemeController.sendMeme(this.client);
+  async _handleMeme() {
+    try {
+      const guild = await this.client.guilds.fetch("1326785072182857729"); // Fetch the guild
+
+      // Fetch the channels after the guild is fetched
+      await guild.channels.fetch();
+      let channel = guild.channels.cache.find((ch) => ch.name == "😂・memes");
+      memeEvents(channel);
+      // Now you can access the channels cache
+      // console.log();
+    } catch (error) {
+      console.error("Error fetching guild or channels:", error);
+    }
   }
+  
 
   async start() {
     this.client.login(process.env.BOT_TOKEN); // Ensure your token is set in the environment variables
     this.onReady();
     this.onJoinUser();
     this.manageCommand();
-    // this._handleMeme();
+    this._handleMeme();
     // this._handleDisBoard();
   }
 }
