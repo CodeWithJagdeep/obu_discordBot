@@ -22,6 +22,7 @@ class MemeController {
   }
 
   async sendMeme(channel) {
+    console.log("here");
     const file = path.join(__dirname, "..", "memeIndex.txt"); // Path to the file
 
     let currentIndex = this.loadCurrentIndex(file); // Initialize the current index from file
@@ -30,7 +31,6 @@ class MemeController {
     setInterval(async () => {
       // Fetch the meme image
       try {
-        console.log("here");
         const response = await axios({
           url: memes[currentIndex],
           method: "GET",
