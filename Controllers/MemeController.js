@@ -30,6 +30,7 @@ class MemeController {
     setInterval(async () => {
       // Fetch the meme image
       try {
+        console.log("here");
         const response = await axios({
           url: memes[currentIndex],
           method: "GET",

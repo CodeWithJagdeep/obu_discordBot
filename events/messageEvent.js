@@ -5,7 +5,7 @@ const { formatMessage } = require("../utils/dynamicMessage");
 const messageEvent = (client) => {
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return; // Ignore bot messages
-    console.log(message);
+    // console.log(message);
     const command = message.content.toLowerCase().trim();
     if (command.startsWith("/")) {
       let currentEvent = command.slice(1, message.content.length).trim();

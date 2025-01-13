@@ -60,9 +60,9 @@ class MyBot {
     setInterval(async () => {
       try {
         const request = await axios.get("https://obu-discordbot.onrender.com");
-        console.log("done");
+        // console.log("done");
       } catch (err) {
-        console.log("done", err);
+        // console.log("done", err);
       }
     }, 60 * 1000);
   }
