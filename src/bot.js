@@ -11,6 +11,7 @@ const messageEvent = require("../events/messageEvent");
 const { guildMemberAdd } = require("../events/guildMemberAdd");
 const MemeController = require("../Controllers/MemeController");
 const { memeEvents } = require("../events/memeEvent");
+const axios = require("axios");
 
 class MyBot {
   constructor() {
@@ -73,7 +74,6 @@ class MyBot {
     this.manageCommand();
     this._handleMeme();
     this._dummyRequest();
-    // this._handleDisBoard();
   }
 }
 
