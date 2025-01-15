@@ -2,6 +2,12 @@
 
 **OBU** is an interactive Discord bot designed to enhance user engagement and automate various tasks within a Discord server. The bot can send engaging memes, welcome new users, and generate personalized GIFs, boosting daily interactions and improving the overall community experience.
 
+<div align="center">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg" width="100" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/6/61/JavaScript-logo.png" width="100" />
+
+</div>
+
 ## Features
 
 - **Meme Sharing**: Automatically sends random memes to the server, keeping the environment fun and lively.
