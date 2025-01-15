@@ -1,6 +1,5 @@
 # OBU Discord Bot
 
-**OBU** is an interactive Discord bot designed to enhance user engagement and automate various tasks within a Discord server. The bot can send engaging memes, welcome new users, and generate personalized GIFs, boosting daily interactions and improving the overall community experience.
 
 <div align="center">
 <img src="https://img.shields.io/badge/Node.js-8CC84B?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
@@ -8,6 +7,9 @@
 <img src="https://img.shields.io/badge/Discord.js-7289DA?style=for-the-badge&logo=discord&logoColor=white" alt="Discord.js" />
 
 </div>
+
+**OBU** is an interactive Discord bot designed to enhance user engagement and automate various tasks within a Discord server. The bot can send engaging memes, welcome new users, and generate personalized GIFs, boosting daily interactions and improving the overall community experience.
+
 
 ## Features
 
