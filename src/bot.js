@@ -3,6 +3,7 @@ const messageEvent = require("../events/messageEvent");
 const { guildMemberAdd } = require("../events/guildMemberAdd");
 const { _handleKickedMember } = require("../events/userEvents");
 const { RPSgame } = require("../events/GameEvents");
+const axios = require("axios");
 const CommandsBuilder = require("../events/commandBuilder");
 
 class MyBot {

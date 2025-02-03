@@ -67,7 +67,7 @@ function Gif() {
               onClick={() => {
                 handleSelectGif(index, gif?.media_formats?.gif?.url);
               }}
-              src={gif?.media_formats?.gif?.url}
+              src={gif}                                                         
               alt={`Gif ${index}`}
               width={220}
               className="object-cover w-full"
