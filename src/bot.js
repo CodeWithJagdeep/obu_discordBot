@@ -51,7 +51,7 @@ class MyBot {
     // Initialize commands
     const commandsBuilder = new CommandsBuilder(this.client);
     await commandsBuilder.run(); // Ensures commands register before proceeding
-
+    this._dummyRequest();
     // Register event handlers
     guildMemberAdd(this.client); // Handles new member joins
     messageEvent(this.client); // Handles message-related events

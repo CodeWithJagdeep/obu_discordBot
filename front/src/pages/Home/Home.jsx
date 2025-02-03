@@ -14,10 +14,13 @@ function Home() {
     try {
       // Convert selectedGif Set to an array of URLs
       const gifsToSend = Array.from(selectedGif);
-      const request = await axios.post("http://localhost:8080/selectedGif", {
-        type,
-        gif: gifsToSend,
-      });
+      const request = await axios.post(
+        "https://obu-discordbot.onrender.com/selectedGif",
+        {
+          type,
+          gif: gifsToSend,
+        }
+      );
       console.log(request);
     } catch (error) {
       console.log(error);
