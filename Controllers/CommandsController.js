@@ -9,10 +9,10 @@ class CommandsController {
   async findReleventGif(action) {
     try {
       const request = await axios.get(
-        `https://tenor.googleapis.com/v2/search?q=${action}&key=${TENOR_GIF_TOKEN}&client_key=${GOOGLE_CLIENT_ID}&limit=50`
+        `https://tenor.googleapis.com/v2/search?q=anime+${action}&key=${TENOR_GIF_TOKEN}&client_key=${GOOGLE_CLIENT_ID}&limit=50`
       );
 
-      console.log(request);
+      // console.log(request);
       let randomGif = Math.floor(Math.random() * request.data.results.length);
       let gifUrl = request.data.results[randomGif].media_formats.gif.url;
 
@@ -28,49 +28,30 @@ class CommandsController {
 
   async sendGif(message, hasActionKey) {
     let gif = await this.findReleventGif(hasActionKey);
-    console.log(gif);
     if (gif) {
       try {
-        // // Extract userId and friendId from the message
-        // const userId = message.author.id;
-        // const friendIdMatch = message.content.match(/<@(\d+)>/);
-        // const friendId = friendIdMatch ? friendIdMatch[1] : null; // Get friendId if it exists
-
-        // if (!friendId) {
-        //   return message.reply("Please mention a user to interact with.");
-        // }
-
-        // // Create the streak for the given user and friend
-        // const streak = await createStreak({ userId, friendId });
-
-        // // Ensure streak creation returns a valid object with streak and streakAdd properties
-        // if (!streak) {
-        //   return message.reply(
-        //     "An error occurred while creating the streak."
-        //   );
-        // }
-
-        // // const messageReference =
-        // //   await this.message.channel.messages.fetch(this.message.id);
-        // // messageReference.delete();
-
-        // Make sure the action key is defined, e.g., 'slap', 'hug', etc.
-        const actionKey = hasActionKey || "action"; // Replace with actual action key logic
-
-        const title = `<@${message.author.id}> wants to ${actionKey} !`;
-        // const title =
-        //   userId && friendId
-        //     ? `${
-        //         streak.streakAdd
-        //           ? `You made a total of ${streak.streaks} streak 🔥`
-        //           : `<@${message.author.id}> wants to ${actionKey} <@${friendId}>!`
-        //       }`
-        //     : "Action failed due to missing information";
-
+        let mentionId = message.mentions.users.map((user) => user.id);
+        // Create dynamic message based on the number of mentions
+        let dynamicMessage = "";
+        if (mentionId.length > 1) {
+          // If more than one user is mentioned, mention all of them
+          dynamicMessage = `${
+            message.author.tag
+          } wants to ${hasActionKey} ${mentionId
+            .map((id) => `<@${id}>`)
+            .join(", ")}!`;
+        } else if (mentionId.length === 1) {
+          // If only one user is mentioned
+          dynamicMessage = `${message.author.tag} wants to ${hasActionKey} <@${mentionId[0]}>!`;
+        } else {
+          // If no users are mentioned, the author performs the action on themselves
+          dynamicMessage = `${message.author.tag} wants to ${hasActionKey} themselves!`;
+        }
         // Create the Embed
         const messageEmbed = new EmbedBuilder()
+     
           .setColor(0x00ff00) // Green color
-          .setDescription(title) // Set the title with dynamic action
+          .setDescription(dynamicMessage) // Set the title with dynamic action
           .setImage(gif) // Display the gif as the main image
           .setTimestamp();
 
@@ -86,10 +67,6 @@ class CommandsController {
   }
 
   async obuCommands(message) {
-    // let channel = message.guild.channels.cache.find(
-    //   (channel) => channel.name == "🤖︱bot-command"
-    // );
-
     // Creating the Embed
     const commandEmbed = new EmbedBuilder()
       .setColor(0x00ff00) // Green color
