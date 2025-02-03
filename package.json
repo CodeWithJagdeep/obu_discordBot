@@ -11,10 +11,19 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
+    "@discordjs/rest": "^2.4.2",
+    "@discordjs/voice": "^0.18.0",
     "axios": "^1.7.9",
+    "cors": "^2.8.5",
+    "discord-api-types": "^0.37.116",
     "discord.js": "^14.17.3",
+    "distube": "^5.0.4",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "mongodb": "^6.13.0",
+    "mongoose": "^8.9.6",
+    "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
