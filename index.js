@@ -7,7 +7,7 @@ const helmet = require("helmet"); // Security middleware
 const { connectDb } = require("./config/Db");
 
 const app = express();
-const PORT = 8080;
+const PORT = 8888;
 
 // Middleware for security headers
 app.use(helmet());

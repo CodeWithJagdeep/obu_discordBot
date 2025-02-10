@@ -101,6 +101,7 @@ const emotions = [
   "spin",
   "twerk",
   "moonwalk",
+  "birthday",
 
   // Love/Kiss Actions
   "kiss",
@@ -113,7 +114,65 @@ const emotions = [
   "embrace",
   "crush",
   "adore",
+
+  //feeling
+  "scare",
 ];
+
+const specialOcc = [
+  "birthday",
+  "newYear",
+  "christmas",
+  "easter",
+  "valentinesDay",
+  "halloween",
+  "thanksgiving",
+  "independenceday",
+  "anniversary",
+  "mothersday",
+  "fathersDay",
+  "friendshipday",
+  "diwali",
+  "ramadaneid",
+  "holi",
+];
+
+const wishes = (name) => ({
+  birthday: `🎉 Happy Birthday, ${name}! May your day be filled with joy, laughter, and lots of cake! 🎂🥳`,
+  newyear: `🎊 Happy New Year, ${name}! Wishing you a year full of success, happiness, and new adventures! 🥂🎆`,
+  christmas: `🎄 Merry Christmas, ${name}! May your heart be filled with warmth, love, and holiday cheer! 🎁🎅`,
+  easter: `🐣 Happy Easter, ${name}! May your day be as bright and colorful as an Easter egg! 🌸🥚`,
+  valentinesday: `💖 Happy Valentine's Day, ${name}! May your day be filled with love, romance, and sweet moments! 💘🌹`,
+  halloween: `🎃 Happy Halloween, ${name}! Hope your night is full of spooky fun and lots of treats! 👻🍬`,
+  thanksgiving: `🦃 Happy Thanksgiving, ${name}! Wishing you a day filled with gratitude, love, and delicious food! 🍁🥧`,
+  independenceday: `🎆 Happy Independence Day, ${name}! Let's celebrate freedom and the spirit of unity! 🇺🇸🎇`,
+  anniversary: `💞 Happy Anniversary, ${name}! Wishing you endless love and cherished memories! 💍🎊`,
+  graduation: `🎓 Congratulations, ${name}! Your hard work has paid off—wishing you success ahead! 🎉📜`,
+  wedding: `💍 Congratulations on your wedding, ${name}! Wishing you a lifetime of love and happiness! 💕✨`,
+  engagement: `💎 Congratulations on your engagement, ${name}! May this journey be filled with love and joy! 💑💖`,
+  promotion: `🎊 Congrats on your promotion, ${name}! Wishing you great success in your new role! 🚀🏆`,
+  retirement: `🎉 Happy Retirement, ${name}! Wishing you a wonderful new chapter full of relaxation and joy! 🌟🏖️`,
+  babyShower: `👶🎀 Congratulations, ${name}! Wishing you and your little one a world of happiness! 🍼💕`,
+  mothersDay: `🌸 Happy Mother's Day, ${name}! Thank you for your love, kindness, and endless support! 💖👩‍👧`,
+  fathersDay: `👔 Happy Father's Day, ${name}! You're an incredible role model and hero in our lives! 💙👨‍👧‍👦`,
+  friendshipDay: `🤝 Happy Friendship Day, ${name}! Grateful to have you as a wonderful friend! 💛🎉`,
+  diwali: `🪔 Happy Diwali, ${name}! May your life be filled with light, prosperity, and happiness! 🎆✨`,
+  ramadaneid: `🌙 Eid Mubarak, ${name}! Wishing you peace, joy, and countless blessings! 🕌🍽️`,
+  hanukkah: `🕎 Happy Hanukkah, ${name}! May your days be filled with light, love, and laughter! ✨🎶`,
+  holi: `🎨 Happy Holi, ${name}! May your life be as colorful and vibrant as this festival! 🌈🎉`,
+});
+
+const reflectedEmotion = (name, emotion) => {
+  const emotions = {
+    scare: `😨 Oh no, ${name} is feeling scared! Hold on tight, it's getting spooky! 👻🎃`,
+    happy: `😊 Yay! ${name} is feeling super happy today! Keep smiling! 😄🌟`,
+    sad: `😢 Oh no, ${name} is feeling down. Sending virtual hugs your way! 🤗💙`,
+    excited: `🎉 Woohoo! ${name} is feeling excited! Let's celebrate! 🎊🥳`,
+    angry: `😠 Uh-oh! ${name} is feeling angry. Take a deep breath and relax! 🧘‍♂️🔥`,
+  };
+
+  return emotions[emotion] || null;
+};
 
 // Categorized emotions as a message to be sent to the channel
 const obuCommands = `
@@ -138,4 +197,10 @@ ${emotions.slice(74, 94).join(" | ")}
 ${emotions.slice(94).join(" | ")}
 `;
 
-module.exports = { emotions, obuCommands };
+module.exports = {
+  emotions,
+  obuCommands,
+  specialOcc,
+  wishes,
+  reflectedEmotion,
+};

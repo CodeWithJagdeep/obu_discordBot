@@ -9,4 +9,5 @@ module.exports = {
   prefix: process.env.PREFIX || "!", // Command prefix
   logLevel: process.env.LOG_LEVEL || "info", // Log level configuration
   MONGO_URL: process.env.MONGO_URL || "",
+  YOUTUBE_API: process.env.YOUTUBE_API || "",
 };

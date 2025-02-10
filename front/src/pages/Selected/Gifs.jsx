@@ -10,6 +10,11 @@ function Gif() {
   const [selected, setSelected] = useState(new Set());
   const [selectedGif, setSelectedGif] = useState(new Set());
 
+  const _removeGif = async (gif) => {
+    try {
+    } catch (err) {}
+  };
+
   const _getGifs = async (pos = "") => {
     setLoading(true); // Set loading to true while fetching data
     try {
@@ -31,43 +36,14 @@ function Gif() {
     }
   }, [type]);
 
-  const handleNext = () => {
-    if (next) {
-      _getGifs(next); // Fetch next page of gifs
-    }
-  };
-
-  const handleSelectGif = (index, gif) => {
-    setSelected((prevSelected) => {
-      const updatedSelected = new Set(prevSelected);
-      if (updatedSelected.has(index)) {
-        updatedSelected.delete(index);
-      } else {
-        updatedSelected.add(index);
-      }
-      return updatedSelected;
-    });
-    setSelectedGif((prevSelected) => {
-      const updatedSelected = new Set(prevSelected);
-      if (updatedSelected.has(gif)) {
-        updatedSelected.delete(gif);
-      } else {
-        updatedSelected.add(gif);
-      }
-      return updatedSelected;
-    });
-  };
-
   return (
     <>
       <div className="w-full justify-start flex-wrap flex items-center">
         {gifs?.map((gif, index) => (
           <div key={index} className="relative w-2/12">
             <img
-              onClick={() => {
-                handleSelectGif(index, gif?.media_formats?.gif?.url);
-              }}
-              src={gif}                                                         
+              onClick={() => {}}
+              src={gif}
               alt={`Gif ${index}`}
               width={220}
               className="object-cover w-full"

@@ -1,14 +1,8 @@
+const { YOUTUBE_API } = require("../config/env");
+
 class MusicController {
   constructor(client) {
     this.client = client;
-
-    // Initialize DisTube
-    this.distube = new DisTube(this.client, {
-      leaveOnStop: false,
-      emitNewSongOnly: true,
-      searchSongs: 0,
-      youtubeDL: true,
-    });
 
     // Event Listeners
     this.distube
@@ -55,6 +49,40 @@ class MusicController {
 
     this.distube.stop(interaction.guild);
     interaction.reply("⏹ Music stopped!");
+  }
+
+  async recommandsSong() {
+    try {
+      const YOUTUBE_API_KEY = YOUTUBE_API; // Replace with your API Key
+      const response = await axios.get(
+        `https://www.googleapis.com/youtube/v4/search`,
+        {
+          params: {
+            key: YOUTUBE_API_KEY,
+            part: "snippet",
+            relatedToVideoId: "o6CvPAWm6dM", // 🔥 Get related videos
+            type: "video",
+            maxResults: 1, // Get 3 recommended songs
+          },
+        }
+      );
+
+      // ✅ Extract the first recommended song
+      if (response.data.items.length > 0) {
+        const nextSong = response.data.items[0];
+        return {
+          title: nextSong.snippet.title,
+          videoId: nextSong.id.videoId,
+          url: `https://www.youtube.com/watch?v=${nextSong.id.videoId}`,
+          thumbnail: nextSong.snippet.thumbnails.default.url,
+        };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching next song:", error);
+      return null;
+    }
   }
 }
 

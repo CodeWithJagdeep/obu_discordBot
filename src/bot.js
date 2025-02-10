@@ -1,35 +1,69 @@
 const { Client, GatewayIntentBits } = require("discord.js");
+const axios = require("axios");
+const { default: DisTube } = require("distube");
+
 const messageEvent = require("../events/messageEvent");
 const { guildMemberAdd } = require("../events/guildMemberAdd");
 const { _handleKickedMember } = require("../events/userEvents");
 const { RPSgame } = require("../events/GameEvents");
-const axios = require("axios");
 const CommandsBuilder = require("../events/commandBuilder");
+const { YtDlpPlugin } = require("@distube/yt-dlp");
+const { default: SpotifyPlugin } = require("@distube/spotify");
+const { YouTubePlugin, YouTubePlaylist } = require("@distube/youtube");
+const { default: SoundCloudPlugin } = require("@distube/soundcloud");
 
 class MyBot {
   constructor() {
     this.client = new Client({
       intents: [
-        GatewayIntentBits.Guilds, // Required to interact with guild-related events
-        GatewayIntentBits.GuildMessages, // Allows bot to read and send messages
-        GatewayIntentBits.MessageContent, // Enables message content reading
-        GatewayIntentBits.GuildMembers, // Enables member join/leave event handling
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildVoiceStates, // Needed for music bot
       ],
     });
+
+    this._distube = null; // Private placeholder
   }
 
   /**
-   * Logs a message when the bot is ready.
+   * Getter for DisTube instance
    */
-  onReady() {
+  get distube() {
+    if (!this._distube) {
+      throw new Error("DisTube is not initialized yet.");
+    }
+    return this._distube;
+  }
+
+  /**
+   * Logs a message when the bot is ready and initializes DisTube.
+   */
+  async onReady() {
     this.client.once("ready", () => {
-      console.log(`Logged in as ${this.client.user.tag}`);
+      console.log(`✅ Logged in as ${this.client.user.tag}`);
+
+      // ✅ Initialize DisTube after the bot is ready
+      this._distube = new DisTube(this.client, {
+        emitNewSongOnly: true,
+        emitAddSongWhenCreatingQueue: false,
+        emitAddListWhenCreatingQueue: false,
+
+        plugins: [
+          // new SpotifyPlugin(),
+          new SoundCloudPlugin(),
+          new YouTubePlugin(), // Ensure YouTube Plugin works
+          // new YtDlpPlugin(),
+        ], // Optional: Add Spotify support
+      });
+
+      console.log("🎵 DisTube initialized successfully.");
     });
   }
 
   /**
    * Prevents the bot from going idle by sending periodic requests.
-   * This keeps the bot awake on free hosting platforms like Render.
    */
   async _dummyRequest() {
     setInterval(async () => {
@@ -39,26 +73,42 @@ class MyBot {
       } catch (err) {
         console.error("Error in dummy request:", err);
       }
-    }, 60 * 1000); // Every 60 seconds
+    }, 60 * 1000);
   }
 
   /**
    * Starts the bot by logging in and initializing events.
    */
   async start() {
-    await this.client.login(process.env.BOT_TOKEN);
-    this.onReady();
+    try {
+      await this.client.login(process.env.BOT_TOKEN);
+      this.onReady();
 
-    // Initialize commands
-    const commandsBuilder = new CommandsBuilder(this.client);
-    await commandsBuilder.run(); // Ensures commands register before proceeding
-    this._dummyRequest();
-    // Register event handlers
-    guildMemberAdd(this.client); // Handles new member joins
-    messageEvent(this.client); // Handles message-related events
-    _handleKickedMember(this.client); // Handles member kick events
-    RPSgame(this.client); // Starts Rock-Paper-Scissors game logic
+      // Wait until DisTube is initialized
+      this.client.once("ready", async () => {
+        try {
+          // Pass bot instance with `distube`
+          const commandsBuilder = new CommandsBuilder(
+            this.client,
+            this.distube
+          );
+          await commandsBuilder.run(); // Ensures commands register before proceeding
+
+          // Register event handlers
+          guildMemberAdd(this.client);
+          messageEvent(this.client);
+          _handleKickedMember(this.client);
+          RPSgame(this.client);
+        } catch (error) {
+          console.error("❌ Error initializing bot events:", error);
+        }
+      });
+    } catch (error) {
+      console.error("❌ Error starting the bot:", error);
+    }
   }
 }
 
-module.exports = new MyBot();
+// Export the bot instance
+const botInstance = new MyBot();
+module.exports = botInstance;

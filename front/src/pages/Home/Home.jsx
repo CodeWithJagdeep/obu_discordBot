@@ -9,20 +9,36 @@ function Home() {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const [selectedGif, setSelectedGif] = useState(new Set());
+  const [storedGif, setStoredGif] = useState([]);
+
+  const _selectedGifs = async (pos = "") => {
+    setLoading(true); // Set loading to true while fetching data
+    try {
+      const request = await axios.get(
+        `https://localhost:8888/allgif?type=${type}`
+      );
+
+      setStoredGif(request.data.data);
+    } catch (err) {
+      console.error("Error fetching gifs:", err);
+    } finally {
+      setLoading(false); // Set loading to false once the request is complete
+    }
+  };
 
   const _handleDispatchGif = async () => {
     try {
-      // Convert selectedGif Set to an array of URLs
+      setLoading(true);
       const gifsToSend = Array.from(selectedGif);
-      const request = await axios.post(
-        "https://obu-discordbot.onrender.com/selectedGif",
-        {
-          type,
-          gif: gifsToSend,
-        }
-      );
+      const request = await axios.post("http://localhost:8888/selectedGif", {
+        type,
+        gif: gifsToSend,
+      });
       console.log(request);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
+
       console.log(error);
     }
   };
@@ -45,6 +61,7 @@ function Home() {
   useEffect(() => {
     if (type) {
       _getGifs(); // Fetch gifs when the component mounts or when `type` changes
+      _selectedGifs();
     }
   }, [type]);
 
@@ -79,20 +96,29 @@ function Home() {
     <>
       <div className="w-full justify-start flex-wrap flex items-center">
         {gifs?.map((gif, index) => (
-          <div key={index} className="relative w-2/12">
-            <img
-              onClick={() => {
-                handleSelectGif(index, gif?.media_formats?.gif?.url);
-              }}
-              src={gif?.media_formats?.gif?.url}
-              alt={`Gif ${index}`}
-              width={220}
-              className="object-cover w-full"
-              style={{
-                border: selected.has(index) ? "3px solid red" : "none",
-              }} // Optional: Highlight selected GIF with a border
-            />
-          </div>
+          <>
+            {!storedGif.includes(gif?.media_formats?.gif?.url) && (
+              <div key={index} className="relative w-2/12">
+                {console.log()}
+                <img
+                  onClick={() => {
+                    handleSelectGif(index, gif?.media_formats?.gif?.url);
+                  }}
+                  src={gif?.media_formats?.gif?.url}
+                  alt={`Gif ${index}`}
+                  width={220}
+                  className="object-cover w-full"
+                  style={{
+                    border:
+                      selected.has(index) ||
+                      storedGif.includes(gif?.media_formats?.gif?.url)
+                        ? "3px solid red"
+                        : "none",
+                  }} // Optional: Highlight selected GIF with a border
+                />
+              </div>
+            )}
+          </>
         ))}
       </div>
       <div className="flex items-center justify-center text-black ">
