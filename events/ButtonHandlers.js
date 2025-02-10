@@ -63,13 +63,14 @@ module.exports = async (interaction, distube) => {
           .setColor("#0099ff") // Stylish Blue Color
           .setTitle("🎮 How to Play?")
           .setDescription(
-            "Welcome to **[Game Name]**, an exciting game where strategy, quick thinking, and teamwork are key! 🚀\n\n" +
+            "Welcome to **Shadow Tactics**, an exciting game where strategy, quick thinking, and teamwork are key! 🚀\n\n" +
               "**🔹 About the Game:**\n" +
               "In this game, players engage in a thrilling battle of wit and reflexes. You must complete objectives, make strategic moves, and outsmart your opponents to win!\n\n" +
               "**📌 How to Play:**\n" +
               "1️⃣ **Type `/start`** to begin your journey.\n" +
-              "2️⃣ **Follow game instructions** and complete challenges.\n" +
-              "3️⃣ **Use buttons or commands** to interact and make decisions.\n" +
+              "2️⃣ **Each player gets a turn** to use one of the two commands:\n" +
+              "   - 🗣️ **`/lasttell`** → Ask about the last statement made by another player.\n" +
+              "   - 🎭 **`/tho`** → add your statement to continue game\n" +
               "4️⃣ **Compete or collaborate** to achieve victory.\n\n" +
               "**🔥 Pro Tip:** Stay alert, think ahead, and use teamwork to dominate the game!"
           )
