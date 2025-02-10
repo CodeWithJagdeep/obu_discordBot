@@ -129,12 +129,12 @@ class CommandsBuilder {
                   return await interaction.reply({
                     content:
                       game.participants[prevUser].thought ||
-                      "Last Participants failed submit on time",
+                      "The last participant failed submit on time",
                     ephemeral: true, // Only visible to the user who triggered it
                   });
                 } else {
                   return await interaction.reply({
-                    content: "There is no previous thought available.",
+                    content: "It might not be your turn.",
                     ephemeral: true,
                   });
                 }
@@ -147,7 +147,7 @@ class CommandsBuilder {
             } else {
               return await interaction.reply({
                 content:
-                  "No game running use !startdiary command and tag your friend to start.",
+                  "No game is currently running. Use `!startdiary` and tag a friend to start.",
                 ephemeral: true, // Only visible to the user who triggered it
               });
             }
@@ -166,8 +166,7 @@ class CommandsBuilder {
                 currentUser.thought = thought;
                 await existingGame.save();
                 return await interaction.reply({
-                  content: "Thanks for submission.",
-                  ephemeral: true,
+                  content: `<@${currentUser.userId}> has submitted their thought.`,
                 });
               }
             } else {

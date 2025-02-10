@@ -1,3 +1,4 @@
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const CommandsBuilder = require("../events/commandBuilder");
 const GameModel = require("../Models/GameModel");
 const CommandsController = require("./CommandsController");
@@ -12,6 +13,12 @@ class Game {
     this.isActive = false;
     this.message = message;
     this.CommandsBuilder = new CommandsBuilder();
+    this.row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("how_to_play")
+        .setLabel("How to Play? 🎮")
+        .setStyle(ButtonStyle.Primary)
+    );
   }
 
   /**
@@ -61,9 +68,15 @@ class Game {
   async startGame() {
     const game = await this.CreateGame();
     if (game.existed) {
-      return this.message.channel.send("The game is already running");
+      return this.message.channel.send({
+        content: "The game is already running",
+        components: [this.row], // Attach the button
+      });
     } else {
-      this.message.channel.send("The diary game is starting!");
+      this.message.channel.send({
+        content: "The diary game is starting!",
+        components: [this.row], // Attach the button
+      });
       await this.nextTurn(game.game, game.game.participants);
     }
   }
@@ -81,11 +94,16 @@ class Game {
       await this.message.channel.send(
         `It's <@${currentPlayer.userId}>'s turn!`
       );
-
-      // Wait for 60 seconds (or adjust the delay as needed)
-      await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
+      // Wait for 30 seconds, then send a reminder
+      await new Promise((resolve) => setTimeout(resolve, 30 * 1000));
       await this.message.channel.send(
-        `<@${currentPlayer.userId}>'s Time up! hope you submited.`
+        `<@${currentPlayer.userId}>, you have **30 seconds** left to submit your thought! ⏳`
+      );
+
+      // Wait for another 30 seconds, then notify that time is up
+      await new Promise((resolve) => setTimeout(resolve, 30 * 1000));
+      await this.message.channel.send(
+        `<@${currentPlayer.userId}>'s time is up! Hope you submitted your thought. ⏳`
       );
       // Find the index of the current player in the participants array
       const index = game.participants.findIndex(
