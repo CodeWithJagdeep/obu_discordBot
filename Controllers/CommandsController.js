@@ -1,7 +1,12 @@
 const { TENOR_GIF_TOKEN, GOOGLE_CLIENT_ID } = require("../config/env");
 const axios = require("axios");
 const { EmbedBuilder } = require("discord.js");
-const { obuCommands } = require("../data/emotions");
+const {
+  obuCommands,
+  specialOcc,
+  wishes,
+  reflectedEmotion,
+} = require("../data/emotions");
 
 class CommandsController {
   constructor() {}
@@ -30,28 +35,45 @@ class CommandsController {
     let gif = await this.findReleventGif(hasActionKey);
     if (gif) {
       try {
+        // console.log(message);
         let mentionId = message.mentions.users.map((user) => user.id);
-        // Create dynamic message based on the number of mentions
         let dynamicMessage = "";
-        if (mentionId.length > 1) {
+        // Fetch the author's server nickname or username
+        const authorMember = await message.guild.members.fetch(
+          message.author.id
+        );
+        const authorName = authorMember.nickname || authorMember.user.username;
+        // console.log(authorName);
+
+        // Create dynamic message based on the number of mentions
+        let hasReflectedEmotion = authorName
+          ? reflectedEmotion(authorName, hasActionKey)
+          : undefined; // Prevents undefined errors
+        if (hasReflectedEmotion) {
+          dynamicMessage = hasReflectedEmotion;
+        } else if (mentionId.length > 1) {
           // If more than one user is mentioned, mention all of them
-          dynamicMessage = `${
-            message.author.tag
-          } wants to ${hasActionKey} ${mentionId
+          dynamicMessage = `${authorName} wants to ${hasActionKey} ${mentionId
             .map((id) => `<@${id}>`)
             .join(", ")}!`;
         } else if (mentionId.length === 1) {
-          // If only one user is mentioned
-          dynamicMessage = `${message.author.tag} wants to ${hasActionKey} <@${mentionId[0]}>!`;
+          const user = await message.client.users.fetch(mentionId[0]); // Fetch user details
+          const userName = user.username; // Get username
+
+          if (specialOcc.includes(hasActionKey.toLowerCase())) {
+            // Ensure case match
+            let getWish = wishes(`${userName}`)[hasActionKey]; // Fetch wish
+            dynamicMessage = `${authorName} wants to wish ${getWish}`;
+          } else {
+            dynamicMessage = `${authorName} wants to ${hasActionKey} ${userName}!`;
+          }
         } else {
-          // If no users are mentioned, the author performs the action on themselves
-          dynamicMessage = `${message.author.tag} wants to ${hasActionKey} themselves!`;
+          dynamicMessage = `${authorName} wants to ${hasActionKey} themselves!`;
         }
         // Create the Embed
         const messageEmbed = new EmbedBuilder()
-     
           .setColor(0x00ff00) // Green color
-          .setDescription(dynamicMessage) // Set the title with dynamic action
+          .setTitle(`**${dynamicMessage}**`) // Makes the text bold
           .setImage(gif) // Display the gif as the main image
           .setTimestamp();
 
