@@ -1,3 +1,5 @@
+const { EmbedBuilder } = require("discord.js");
+
 module.exports = async (interaction, distube) => {
   if (!interaction.isButton()) return;
 
@@ -54,9 +56,38 @@ module.exports = async (interaction, distube) => {
         .join("\n");
       await interaction.reply(`📜 **Current Queue:**\n${songs}`);
       break;
+    case "how_to_play":
+      await interaction.deferReply({ ephemeral: true }); // Defers the reply
+      try {
+        const embed = new EmbedBuilder()
+          .setColor("#0099ff") // Stylish Blue Color
+          .setTitle("🎮 How to Play?")
+          .setDescription(
+            "Welcome to **[Game Name]**, an exciting game where strategy, quick thinking, and teamwork are key! 🚀\n\n" +
+              "**🔹 About the Game:**\n" +
+              "In this game, players engage in a thrilling battle of wit and reflexes. You must complete objectives, make strategic moves, and outsmart your opponents to win!\n\n" +
+              "**📌 How to Play:**\n" +
+              "1️⃣ **Type `/start`** to begin your journey.\n" +
+              "2️⃣ **Follow game instructions** and complete challenges.\n" +
+              "3️⃣ **Use buttons or commands** to interact and make decisions.\n" +
+              "4️⃣ **Compete or collaborate** to achieve victory.\n\n" +
+              "**🔥 Pro Tip:** Stay alert, think ahead, and use teamwork to dominate the game!"
+          )
+          .setFooter({
+            text: "Good luck, and may the best player win! 🎯",
+            iconURL: interaction.user.displayAvatarURL(),
+          });
 
+        return await interaction.editReply({ embeds: [embed] }); // Sends the embed after defer
+      } catch (err) {
+        return await interaction.reply({
+          content: "unknown error",
+          ephemeral: true, // Only visible to the user who clicked
+        });
+      }
+      break;
     default:
-      await interaction.reply("❌ Unknown button interaction!");
+      return await interaction.reply("❌ Unknown button interaction!");
       break;
   }
 };
