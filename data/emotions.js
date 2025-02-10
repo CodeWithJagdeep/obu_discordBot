@@ -119,7 +119,7 @@ const emotions = [
   "newYear",
   "christmas",
   "easter",
-  "valentinesDay",
+  "valentinesday",
   "halloween",
   "thanksgiving",
   "independenceday",
