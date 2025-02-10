@@ -115,11 +115,6 @@ const emotions = [
   "crush",
   "adore",
 
-  //feeling
-  "scare",
-];
-
-const specialOcc = [
   "birthday",
   "newYear",
   "christmas",
@@ -131,6 +126,24 @@ const specialOcc = [
   "anniversary",
   "mothersday",
   "fathersDay",
+  "friendshipday",
+  "diwali",
+  "ramadaneid",
+  "holi",
+];
+
+const specialOcc = [
+  "birthday",
+  "newYear",
+  "christmas",
+  "easter",
+  "valentinesday",
+  "halloween",
+  "thanksgiving",
+  "independenceday",
+  "anniversary",
+  "mothersday",
+  "fathersday",
   "friendshipday",
   "diwali",
   "ramadaneid",
@@ -152,8 +165,8 @@ const wishes = (name) => ({
   engagement: `💎 Congratulations on your engagement, ${name}! May this journey be filled with love and joy! 💑💖`,
   promotion: `🎊 Congrats on your promotion, ${name}! Wishing you great success in your new role! 🚀🏆`,
   retirement: `🎉 Happy Retirement, ${name}! Wishing you a wonderful new chapter full of relaxation and joy! 🌟🏖️`,
-  babyShower: `👶🎀 Congratulations, ${name}! Wishing you and your little one a world of happiness! 🍼💕`,
-  mothersDay: `🌸 Happy Mother's Day, ${name}! Thank you for your love, kindness, and endless support! 💖👩‍👧`,
+  babyshower: `👶🎀 Congratulations, ${name}! Wishing you and your little one a world of happiness! 🍼💕`,
+  mothersday: `🌸 Happy Mother's Day, ${name}! Thank you for your love, kindness, and endless support! 💖👩‍👧`,
   fathersDay: `👔 Happy Father's Day, ${name}! You're an incredible role model and hero in our lives! 💙👨‍👧‍👦`,
   friendshipDay: `🤝 Happy Friendship Day, ${name}! Grateful to have you as a wonderful friend! 💛🎉`,
   diwali: `🪔 Happy Diwali, ${name}! May your life be filled with light, prosperity, and happiness! 🎆✨`,
