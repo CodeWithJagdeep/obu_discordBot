@@ -1,14 +1,14 @@
 const CommandsController = require("../Controllers/CommandsController");
+const Game = require("../Controllers/GameController");
 const { emotions } = require("../data/emotions");
 const UserActivity = require("../Models/UserActivity");
-const { formatMessage } = require("../utils/dynamicMessage");
 
 const messageEvent = (client) => {
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return; // Ignore bot messages
 
     const command = message.content.toLowerCase().trim();
-    if (message.content.toLowerCase().startsWith("f")) {
+    if (message.content.toLowerCase().startsWith("obu")) {
       let hasActionKey = emotions.filter(
         (state) => message.content.toLowerCase().includes(state) // Return true if message contains the state
       )[0];
@@ -20,6 +20,10 @@ const messageEvent = (client) => {
       }
     } else if (command.toLowerCase() == "spam") {
       CommandsController._handleSpam(message);
+    } else if (command.toLowerCase().startsWith("!startdiary")) {
+      const userIds = Array.from(message.mentions.users.keys());
+      new Game(userIds, message, client).startGame();
+      return;
     } else {
       // Find the user in the database by guildId and userId
       const user = await UserActivity.findOne({
