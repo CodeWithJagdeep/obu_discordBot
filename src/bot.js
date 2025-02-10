@@ -71,7 +71,8 @@ class MyBot {
         await axios.get("https://obu-discordbot.onrender.com");
         console.log("Sent dummy request to keep bot alive.");
       } catch (err) {
-        console.error("Error in dummy request:", err);
+        console.log("");
+        // console.error("Error in dummy request:", err);
       }
     }, 60 * 1000);
   }
