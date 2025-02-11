@@ -130,7 +130,8 @@ const emotions = [
   "diwali",
   "ramadaneid",
   "holi",
-  "scare"
+  "scare",
+  "celebration",
 ];
 
 const specialOcc = [

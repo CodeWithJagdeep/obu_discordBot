@@ -19,6 +19,7 @@ const {
 const ButtonHandlers = require("./ButtonHandlers");
 const { createMusicControls } = require("../Controllers/musicControls");
 const ytdl = require("@distube/ytdl-core");
+const bumpController = require("../Controllers/bumpController");
 
 class CommandsBuilder {
   constructor(client, distube) {
@@ -87,6 +88,9 @@ class CommandsBuilder {
             .setDescription("Enter a song name or YouTube playlist URL")
             .setRequired(true)
         ),
+      new SlashCommandBuilder()
+        .setName("setbump")
+        .setDescription("Configure automatic server bumping."),
 
       new SlashCommandBuilder()
         .setName("lasttell")
@@ -113,6 +117,9 @@ class CommandsBuilder {
               content: "Starting Rock-Paper-Scissors game...",
               ephemeral: true, // Only visible to the user who triggered it
             });
+            break;
+          case "setbump":
+            bumpController.setBump(interaction);
             break;
           case "lasttell": // Fix: Remove `/`
             const game = await GameModel.findOne({

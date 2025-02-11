@@ -5,6 +5,7 @@ const path = require("path");
 const cors = require("cors"); // CORS middleware for cross-origin requests
 const helmet = require("helmet"); // Security middleware
 const { connectDb } = require("./config/Db");
+const bumpModel = require("./Models/BumpModel");
 
 const app = express();
 const PORT = 8888;
@@ -32,6 +33,14 @@ connectDb();
 
 // Start the bot
 bot.start();
+
+app.get("/allbump", async (req, res) => {
+  const bumps = await bumpModel.find();
+  return res.status(200).json({
+    status: "success",
+    data: bumps,
+  });
+});
 
 app.get("/allgif", (req, res) => {
   const { type } = req.query;
