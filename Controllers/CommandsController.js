@@ -52,7 +52,9 @@ class CommandsController {
         console.log(userId);
 
         // Fetch the author's server nickname or username
-        const authorMember = await message.guild.members.fetch(userId);
+        const authorMember = await message.guild.members.fetch(
+          message.author.id
+        );
         const authorName = authorMember.nickname || authorMember.user.username;
 
         // Get the user's profile picture
@@ -65,14 +67,14 @@ class CommandsController {
         console.log(authorName);
 
         let dynamicMessage =
-          reflectedEmotion(message.author.id, hasActionKey) ||
+          reflectedEmotion(authorName, hasActionKey) ||
           `${authorName} wants to ${hasActionKey} you`;
 
         // Create the Embed
         const messageEmbed = new EmbedBuilder()
           .setColor(0x00ff00)
-          .setThumbnail(avatarUrl) // Add the user's profile picture // Green color
-          .setTitle(`**${dynamicMessage}**`) // Makes the text bold
+          // .setThumbnail(avatarUrl) // Add the user's profile picture // Green color
+          .setTitle(`[👤](${avatarUrl})  **${dynamicMessage}**`) // Makes the text bold
           .setImage(gif); // Display the gif as the main image
 
         // Send the embed message
