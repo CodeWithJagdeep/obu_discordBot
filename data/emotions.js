@@ -2,6 +2,9 @@ const emotions = [
   // Physical Actions
   "slap",
   "punch",
+  "sad",
+  "excited",
+  "angry",
   "hug",
   "tickle",
   "poke",
