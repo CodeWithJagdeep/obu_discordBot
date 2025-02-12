@@ -65,7 +65,7 @@ class CommandsController {
         console.log(authorName);
 
         let dynamicMessage =
-          reflectedEmotion(authorName, hasActionKey) ||
+          reflectedEmotion(message.author.id, hasActionKey) ||
           `${authorName} wants to ${hasActionKey} you`;
 
         // Create the Embed
