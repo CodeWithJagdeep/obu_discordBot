@@ -96,15 +96,34 @@ class CommandsController {
 
     const commandEmbed = new EmbedBuilder()
       .setColor(0x00ff00) // Green color
+      .setTitle("🤖 OBU Bot Commands")
+      .setDescription("Here are the available commands:")
+      .addFields(
+        {
+          name: "`obu [emotion] [@user]`",
+          value: "Send a GIF based on the emotion.",
+        },
+        { name: "`obu commands`", value: "Show available commands." },
+        { name: "`!help`", value: "Display this help message." },
+        {
+          name: "`!startdiary [@user]`",
+          value:
+            "Welcome to **Shadow Tactics**, an exciting game where strategy, quick thinking, and teamwork are key!",
+        }
+      )
+      .setFooter({ text: "Explore all available emotions!" });
+
+    const embed = new EmbedBuilder()
+      .setColor(0x00ff00) // Green color
       .setTitle("Emotions Commands List")
       .setDescription(obuCommands) // Insert the emotions message here
       .setTimestamp()
       .setFooter({ text: "Explore all available emotions!" });
 
     // Send the embed to the welcome channel
-    message.reply({
+    return await message.reply({
       content: `Here's list of obu commands <@${userId}>`,
-      embeds: [commandEmbed],
+      embeds: [commandEmbed, embed],
     });
   }
   async _handleSpam(message) {

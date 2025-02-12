@@ -24,6 +24,8 @@ const messageEvent = (client) => {
       const userIds = Array.from(message.mentions.users.keys());
       new Game(userIds, message, client).startGame();
       return;
+    } else if (command.toLowerCase().startsWith("!help")) {
+      CommandsController.obuCommands(message);
     } else {
       // Find the user in the database by guildId and userId
       const user = await UserActivity.findOne({

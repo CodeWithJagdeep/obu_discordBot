@@ -181,6 +181,88 @@ const wishes = (name) => ({
   holi: `🎨 Happy Holi, ${name}! May your life be as colorful and vibrant as this festival! 🌈🎉`,
 });
 
+let currentAvailable = [
+  "slap",
+  "shy",
+  "punch",
+  "sad",
+  "excited",
+  "angry",
+  "hug",
+  "tickle",
+  "poke",
+  "pat",
+  "cuddle",
+  "highfive",
+  "headpat",
+  "bite",
+  "lick",
+  "kick",
+  "boop",
+  "wave",
+  "hold",
+  "pinch",
+  "nudge",
+  "tap",
+  "shove",
+  "headlock",
+  "blush",
+  "cry",
+  "smile",
+  "dance",
+  "shrug",
+  "smirk",
+  "grin",
+  "thumbsup",
+  "wag",
+  "sleepy",
+  "teehee",
+  "pout",
+  "triggered",
+  "thinking",
+  "cheer",
+  "frown",
+  "wink",
+  "facepalm",
+  "laugh",
+  "clap",
+  "groan",
+  "yawn",
+  "nod",
+  "shakehead",
+  "welcome",
+  "kill",
+  "insult",
+  "stare",
+  "roast",
+  "yeet",
+  "mock",
+  "scream",
+  "rage",
+  "sulk",
+  "gasp",
+  "runaway",
+  "kiss",
+  "love",
+  "affection",
+  "romance",
+  "crush",
+  "embrace",
+  "flirt",
+  "birthday",
+  "newYear",
+  "christmas",
+  "easter",
+  "valentinesday",
+  "vlsday",
+  "halloween",
+  "thanksgiving",
+  "diwali",
+  "ramadaneid",
+  "holi",
+  "celebration",
+];
+
 const reflectedEmotion = (name, emotion) => {
   const emotions = {
     // Physical Actions
@@ -280,24 +362,7 @@ const reflectedEmotion = (name, emotion) => {
 const obuCommands = `
 **🔹 Emotions Commands List:**
 
-**💪 Physical Actions:**
-${emotions.slice(0, 21).join(" | ")}
-
-**😃 Reactions/Expressions:**
-${emotions.slice(21, 42).join(" | ")}
-
-**🔥 Intense/Funny Actions:**
-${emotions.slice(42, 63).join(" | ")}
-
-**🐾 Cute/Friendly Actions:**
-${emotions.slice(63, 74).join(" | ")}
-
-**🎉 Miscellaneous:**
-${emotions.slice(74, 94).join(" | ")}
-
-**❤️ Love/Kiss Actions:**
-${emotions.slice(94).join(" | ")}
-`;
+${currentAvailable.join(" | ")}`;
 
 module.exports = {
   emotions,
