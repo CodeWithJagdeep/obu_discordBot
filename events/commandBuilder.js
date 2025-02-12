@@ -20,6 +20,7 @@ const ButtonHandlers = require("./ButtonHandlers");
 const { createMusicControls } = require("../Controllers/musicControls");
 const ytdl = require("@distube/ytdl-core");
 const bumpController = require("../Controllers/bumpController");
+const CommandsController = require("../Controllers/CommandsController");
 
 class CommandsBuilder {
   constructor(client, distube) {
@@ -89,6 +90,9 @@ class CommandsBuilder {
             .setRequired(true)
         ),
       new SlashCommandBuilder()
+        .setName("help")
+        .setDescription("obu, do you need any help?"),
+      new SlashCommandBuilder()
         .setName("setbump")
         .setDescription("Configure automatic server bumping."),
 
@@ -111,6 +115,9 @@ class CommandsBuilder {
         switch (interaction.commandName) {
           case "welcome":
             await handleWelcomeCommand(interaction); // Handles enabling/disabling welcome messages
+            break;
+          case "help":
+            CommandsController.obuCommands(interaction);
             break;
           case "flash":
             await interaction.reply({

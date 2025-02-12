@@ -89,7 +89,9 @@ class CommandsController {
   }
 
   async obuCommands(message) {
-    // Creating the Embed
+    // Determine the user ID correctly
+    let userId = message.author ? message.author.id : message.user?.id;
+
     const commandEmbed = new EmbedBuilder()
       .setColor(0x00ff00) // Green color
       .setTitle("Emotions Commands List")
@@ -99,7 +101,7 @@ class CommandsController {
 
     // Send the embed to the welcome channel
     message.reply({
-      content: `Here's list of obu commands <@${message.author.id}>`,
+      content: `Here's list of obu commands <@${userId}>`,
       embeds: [commandEmbed],
     });
   }
