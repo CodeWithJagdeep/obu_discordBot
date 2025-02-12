@@ -74,7 +74,7 @@ class CommandsController {
         const messageEmbed = new EmbedBuilder()
           .setColor(0x00ff00)
           // .setThumbnail(avatarUrl) // Add the user's profile picture // Green color
-          .setTitle(`[👤](${avatarUrl})  **${dynamicMessage}**`) // Makes the text bold
+          .setTitle(`**${dynamicMessage}**`) // Makes the text bold
           .setImage(gif); // Display the gif as the main image
 
         // Send the embed message
