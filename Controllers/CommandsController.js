@@ -35,47 +35,47 @@ class CommandsController {
     let gif = await this.findReleventGif(hasActionKey);
     if (gif) {
       try {
-        // console.log(message);
-        let mentionId = message.mentions.users.map((user) => user.id);
-        let dynamicMessage = "";
-        // Fetch the author's server nickname or username
-        const authorMember = await message.guild.members.fetch(
-          message.author.id
-        );
-        const authorName = authorMember.nickname || authorMember.user.username;
-        // console.log(authorName);
+        let userId;
 
-        // Create dynamic message based on the number of mentions
-        let hasReflectedEmotion = authorName
-          ? reflectedEmotion(authorName, hasActionKey)
-          : undefined; // Prevents undefined errors
-        if (hasReflectedEmotion) {
-          dynamicMessage = hasReflectedEmotion;
-        } else if (mentionId.length > 1) {
-          // If more than one user is mentioned, mention all of them
-          dynamicMessage = `${authorName} wants to ${hasActionKey} ${mentionId
-            .map((id) => `<@${id}>`)
-            .join(", ")}!`;
-        } else if (mentionId.length === 1) {
-          const user = await message.client.users.fetch(mentionId[0]); // Fetch user details
-          const userName = user.username; // Get username
+        // Get mentioned user IDs
+        const mentionId = message.mentions.users.map((user) => user.id);
 
-          if (specialOcc.includes(hasActionKey.toLowerCase())) {
-            // Ensure case match
-            let getWish = wishes(`${userName}`)[hasActionKey]; // Fetch wish
-            dynamicMessage = `${authorName} wants to wish ${getWish}`;
-          } else {
-            dynamicMessage = `${authorName} wants to ${hasActionKey} ${userName}!`;
-          }
+        // Prioritize mentions, then replied users, then fallback to author
+        if (mentionId.length > 0) {
+          userId = mentionId[0];
+        } else if (message.mentions.repliedUser) {
+          userId = message.mentions.repliedUser.id;
         } else {
-          dynamicMessage = `${authorName} wants to ${hasActionKey} themselves!`;
+          userId = message.author.id;
         }
+
+        console.log(userId);
+
+        // Fetch the author's server nickname or username
+        const authorMember = await message.guild.members.fetch(userId);
+        const authorName = authorMember.nickname || authorMember.user.username;
+
+        // Get the user's profile picture
+        const avatarUrl = authorMember.user.displayAvatarURL({
+          dynamic: true,
+          size: 16,
+        });
+
+        // console.log(message);
+        console.log(authorName);
+
+        let dynamicMessage =
+          reflectedEmotion(authorName, hasActionKey) ||
+          `${authorName} wants to ${hasActionKey} you`;
+
         // Create the Embed
         const messageEmbed = new EmbedBuilder()
-          .setColor(0x00ff00) // Green color
+          .setColor(0x00ff00)
+          .setThumbnail(avatarUrl) // Add the user's profile picture // Green color
           .setTitle(`**${dynamicMessage}**`) // Makes the text bold
-          .setImage(gif) // Display the gif as the main image
-          .setTimestamp();
+          .setImage(gif); // Display the gif as the main image
+
+        // Send the embed message
 
         // Send the embed as a reply to the message
         await message.channel.send({ embeds: [messageEmbed] });
