@@ -19,8 +19,9 @@ function Gif() {
     setLoading(true); // Set loading to true while fetching data
     try {
       const request = await axios.get(
-        `https://obu-discordbot.onrender.com/allgif?type=${type}`
+        `http://localhost:8888/allgif?type=${type}`
       );
+      console.log(gifs);
       setGifs((prevGifs) => [...prevGifs, ...request.data.data]); // Append new results to the previous ones
       setNext(request.data.next); // Update next page token
     } catch (err) {

@@ -6,6 +6,7 @@ const cors = require("cors"); // CORS middleware for cross-origin requests
 const helmet = require("helmet"); // Security middleware
 const { connectDb } = require("./config/Db");
 const bumpModel = require("./Models/BumpModel");
+const GifModel = require("./Models/GIfModel");
 
 const app = express();
 const PORT = 8888;
@@ -42,61 +43,59 @@ app.get("/allbump", async (req, res) => {
   });
 });
 
-app.get("/allgif", (req, res) => {
+app.get("/allgif", async (req, res) => {
   const { type } = req.query;
 
-  const filePath = path.join(__dirname, `${type}.txt`);
-  // Asynchronously read the file
-  fs.readFile(filePath, "utf-8", (err, data) => {
-    if (err && err.code !== "ENOENT") {
-      console.error("❌ Error reading file:", err);
-      return res.status(500).json({ error: "Error reading the file" });
-    }
+  const hasGif = await GifModel.findOne({
+    type: type,
+  });
 
-    let array = data ? JSON.parse(data) : [];
-
+  if (hasGif) {
     return res.status(201).json({
-      data: array,
+      status: "success",
+      data: hasGif.gifs,
     });
+  }
+  return res.status(401).json({
+    status: "success",
+    data: [],
   });
 });
+
+
 /**
  * Endpoint to store selected GIFs based on type
  */
-app.post("/selectedGif", (req, res) => {
+app.post("/selectedGif", async (req, res) => {
   const { gif, type } = req.body;
 
-  if (!gif || !type) {
-    return res.status(400).json({ error: "Gif and type are required" });
-  }
-
-  const filePath = path.join(__dirname, `${type}.txt`);
-
-  // Asynchronously read the file
-  fs.readFile(filePath, "utf-8", (err, data) => {
-    if (err && err.code !== "ENOENT") {
-      console.error("❌ Error reading file:", err);
-      return res.status(500).json({ error: "Error reading the file" });
-    }
-
-    let array = data ? JSON.parse(data) : [];
-    array.push(...gif);
-
-    // Asynchronously append the new GIF URLs to the file
-    fs.writeFile(filePath, `${JSON.stringify(array)}\n`, (err) => {
-      if (err) {
-        console.error("❌ Error writing to file:", err);
-        return res
-          .status(500)
-          .json({ error: "An error occurred while saving the gif" });
-      }
-
-      console.log(`✅ GIF added to ${type}.txt: ${gif}`);
-      return res.status(200).json({
-        message: `Gif added to ${type}.txt successfully!`,
-      });
-    });
+  const hasGif = await GifModel.findOne({
+    type: type,
   });
+
+  if (hasGif) {
+    console.log(hasGif);
+    const hasLink = hasGif.gifs.includes(gif);
+    if (hasLink) {
+      return res.status(201).json({
+        status: "Success",
+      });
+    } else {
+      hasGif.gifs.push(gif);
+      await hasGif.save();
+      return res.status(201).json({
+        status: "Success",
+      });
+    }
+  } else {
+    await GifModel.create({
+      type: type,
+      gifs: [gif],
+    });
+    return res.status(201).json({
+      status: "Success",
+    });
+  }
 });
 
 // Start the Express server

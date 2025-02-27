@@ -15,9 +15,10 @@ function Home() {
     setLoading(true); // Set loading to true while fetching data
     try {
       const request = await axios.get(
-        `https://localhost:8888/allgif?type=${type}`
+        `http://localhost:8888/allgif?type=${type}`
       );
 
+      console.log(request.data.data);
       setStoredGif(request.data.data);
     } catch (err) {
       console.error("Error fetching gifs:", err);
@@ -26,13 +27,13 @@ function Home() {
     }
   };
 
-  const _handleDispatchGif = async () => {
+  const _handleDispatchGif = async (gif) => {
     try {
       setLoading(true);
-      const gifsToSend = Array.from(selectedGif);
+      // const gifsToSend = Array.from(selectedGif);
       const request = await axios.post("http://localhost:8888/selectedGif", {
         type,
-        gif: gifsToSend,
+        gif,
       });
       console.log(request);
       setLoading(false);
@@ -71,7 +72,8 @@ function Home() {
     }
   };
 
-  const handleSelectGif = (index, gif) => {
+  const handleSelectGif = async (index, gif) => {
+    await _handleDispatchGif(gif);
     setSelected((prevSelected) => {
       const updatedSelected = new Set(prevSelected);
       if (updatedSelected.has(index)) {
@@ -97,27 +99,25 @@ function Home() {
       <div className="w-full justify-start flex-wrap flex items-center">
         {gifs?.map((gif, index) => (
           <>
-            {!storedGif.includes(gif?.media_formats?.gif?.url) && (
-              <div key={index} className="relative w-2/12">
-                {console.log()}
-                <img
-                  onClick={() => {
-                    handleSelectGif(index, gif?.media_formats?.gif?.url);
-                  }}
-                  src={gif?.media_formats?.gif?.url}
-                  alt={`Gif ${index}`}
-                  width={220}
-                  className="object-cover w-full"
-                  style={{
-                    border:
-                      selected.has(index) ||
-                      storedGif.includes(gif?.media_formats?.gif?.url)
-                        ? "3px solid red"
-                        : "none",
-                  }} // Optional: Highlight selected GIF with a border
-                />
-              </div>
-            )}
+            <div key={index} className="relative w-2/12">
+              {console.log()}
+              <img
+                onClick={() => {
+                  handleSelectGif(index, gif?.media_formats?.gif?.url);
+                }}
+                src={gif?.media_formats?.gif?.url}
+                alt={`Gif ${index}`}
+                width={220}
+                className="object-cover w-full"
+                style={{
+                  border:
+                    selected.has(index) ||
+                    storedGif.includes(gif?.media_formats?.gif?.url)
+                      ? "3px solid red"
+                      : "none",
+                }} // Optional: Highlight selected GIF with a border
+              />
+            </div>
           </>
         ))}
       </div>
@@ -129,13 +129,13 @@ function Home() {
         >
           {loading ? "Loading..." : "Next"}
         </div>
-        <div
+        {/* <div
           className={`py-2 px-9 ${loading ? "bg-gray-400" : "bg-white"}`}
           onClick={_handleDispatchGif}
           disabled={loading}
         >
           {loading ? "Loading..." : "Done"}
-        </div>
+        </div> */}
       </div>
     </>
   );
