@@ -1,3 +1,5 @@
+const { AuditLogEvent } = require("discord.js");
+
 const _handleKickedMember = (client) => {
   client.on("guildMemberRemove", async (member) => {
     try {
@@ -8,7 +10,6 @@ const _handleKickedMember = (client) => {
 
       const kickLog = auditLogs.entries.first();
       if (kickLog && kickLog.target.id === member.id) {
-        
         const { executor, reason } = kickLog;
         // Send DM with a warning to the user when they are kicked
         await member.user.send(

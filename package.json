@@ -19,6 +19,7 @@
     "@distube/youtube": "^1.0.4",
     "@distube/yt-dlp": "^2.0.1",
     "@distube/ytdl-core": "^4.16.3",
+    "@napi-rs/canvas": "^0.1.67",
     "axios": "^1.7.9",
     "cors": "^2.8.5",
     "discord-api-types": "^0.37.116",

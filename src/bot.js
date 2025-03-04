@@ -5,7 +5,6 @@ const { default: DisTube } = require("distube");
 const messageEvent = require("../events/messageEvent");
 const { guildMemberAdd } = require("../events/guildMemberAdd");
 const { _handleKickedMember } = require("../events/userEvents");
-const { RPSgame } = require("../events/GameEvents");
 const CommandsBuilder = require("../events/commandBuilder");
 const { YtDlpPlugin } = require("@distube/yt-dlp");
 const { default: SpotifyPlugin } = require("@distube/spotify");
@@ -68,7 +67,7 @@ class MyBot {
   async _dummyRequest() {
     setInterval(async () => {
       try {
-        await axios.get("https://obu-discordbot.onrender.com");
+        await axios.get("https://lazy-bot-jd5m.onrender.com");
         console.log("Sent dummy request to keep bot alive.");
       } catch (err) {
         console.log("");
@@ -99,7 +98,7 @@ class MyBot {
           guildMemberAdd(this.client);
           messageEvent(this.client);
           _handleKickedMember(this.client);
-          RPSgame(this.client);
+
           this._dummyRequest();
         } catch (error) {
           console.error("❌ Error initializing bot events:", error);

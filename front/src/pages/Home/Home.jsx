@@ -15,7 +15,7 @@ function Home() {
     setLoading(true); // Set loading to true while fetching data
     try {
       const request = await axios.get(
-        `http://localhost:8888/allgif?type=${type}`
+        `https://obu-discordbot.onrender.com/allgif?type=${type}`
       );
 
       console.log(request.data.data);
@@ -31,10 +31,13 @@ function Home() {
     try {
       setLoading(true);
       // const gifsToSend = Array.from(selectedGif);
-      const request = await axios.post("http://localhost:8888/selectedGif", {
-        type,
-        gif,
-      });
+      const request = await axios.post(
+        "https://obu-discordbot.onrender.com/selectedGif",
+        {
+          type,
+          gif,
+        }
+      );
       console.log(request);
       setLoading(false);
     } catch (error) {

@@ -4,6 +4,11 @@ const {
   PermissionsBitField,
   Routes,
   EmbedBuilder,
+  AttachmentBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowBuilder,
+  Collection,
 } = require("discord.js");
 const { BOT_CLIENT_ID, BOT_TOKEN } = require("../config/env");
 const { handleWelcomeCommand } = require("./guildMemberAdd");
@@ -21,6 +26,9 @@ const { createMusicControls } = require("../Controllers/musicControls");
 const ytdl = require("@distube/ytdl-core");
 const bumpController = require("../Controllers/bumpController");
 const CommandsController = require("../Controllers/CommandsController");
+const { emotions } = require("../data/emotions");
+const CountModel = require("../Models/EmotionsCount");
+const { generateLeaderboardImage } = require("../utils/CanvaGenerator");
 
 class CommandsBuilder {
   constructor(client, distube) {
@@ -28,47 +36,20 @@ class CommandsBuilder {
     this.distube = distube;
     // Define the bot's slash commands
     this.commands = [
-      // Rock-Paper-Scissors game command
-      new SlashCommandBuilder()
-        .setName("flash")
-        .setDescription("Play Rock-Paper-Scissors")
-        .addUserOption((option) =>
-          option
-            .setName("opponent")
-            .setDescription("User to challenge")
-            .setRequired(false)
-        ),
-
-      // Welcome command with enable/disable options
-      new SlashCommandBuilder()
-        .setName("welcome")
-        .setDescription("Enable or disable welcome messages")
-        .addSubcommand((subcommand) =>
-          subcommand
-            .setName("enable")
-            .setDescription("Enable welcome messages")
-            .addChannelOption((option) =>
-              option
-                .setName("channel")
-                .setDescription("Channel for welcome messages")
-                .setRequired(true)
-            )
-        )
-        .addSubcommand((subcommand) =>
-          subcommand
-            .setName("disable")
-            .setDescription("Disable welcome messages")
-        )
-        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator), // Restricts to admins
-
       // Pay respect command
       new SlashCommandBuilder()
         .setName("respect")
         .setDescription("Pay respect to another user"),
 
       new SlashCommandBuilder()
-        .setName("leaderboard")
-        .setDescription("View respect and RPS leaderboard"),
+        .setName("lb")
+        .setDescription("Tracks user interactions (e.g., hugs, kisses, wins)")
+        .addStringOption((option) =>
+          option
+            .setName("action")
+            .setDescription(" Shows leaderboard for specific action")
+            .setRequired(true)
+        ),
 
       new SlashCommandBuilder()
         .setName("tho")
@@ -89,16 +70,18 @@ class CommandsBuilder {
             .setDescription("Enter a song name or YouTube playlist URL")
             .setRequired(true)
         ),
+
       new SlashCommandBuilder()
         .setName("help")
         .setDescription("obu, do you need any help?"),
-      new SlashCommandBuilder()
-        .setName("setbump")
-        .setDescription("Configure automatic server bumping."),
 
       new SlashCommandBuilder()
         .setName("lasttell")
         .setDescription("show you last submission"),
+
+      new SlashCommandBuilder()
+        .setName("firefly")
+        .setDescription("Catch the firefly!"),
     ].map((command) => command.toJSON()); // Convert commands to JSON format
   }
 
@@ -113,21 +96,163 @@ class CommandsBuilder {
         return;
       } else {
         switch (interaction.commandName) {
-          case "welcome":
-            await handleWelcomeCommand(interaction); // Handles enabling/disabling welcome messages
+          case "lb":
+            const actionQuery = interaction.options.getString("action");
+            let hasActionKey = emotions.includes(actionQuery);
+            if (hasActionKey) {
+              const actionData = await CountModel.find({}).sort({ count: -1 });
+              const leaderboardImage = await generateLeaderboardImage(
+                actionData.slice(0, 5),
+                actionQuery
+              );
+
+              await interaction.reply({ content: leaderboardImage });
+            }
+            break;
+
+          case "firefly":
+            const fireflyEmoji = "🪰";
+            const emptyEmoji = "⬛";
+
+            // Cooldown map
+            const fireflyCooldowns = new Collection();
+            const cooldownTime = 4 * 60 * 1000; // 4 minutes cooldown
+
+            const userId = interaction.user.id;
+            const now = Date.now();
+
+            // Check cooldown
+            if (fireflyCooldowns.has(userId)) {
+              const expirationTime =
+                fireflyCooldowns.get(userId) + cooldownTime;
+              if (now < expirationTime) {
+                const timeLeft = Math.ceil((expirationTime - now) / 1000);
+                return interaction.reply({
+                  content: `⏳ Please wait **${timeLeft} seconds** before catching fireflies again!`,
+                  ephemeral: true,
+                });
+              }
+            }
+
+            // Set new cooldown
+            fireflyCooldowns.set(userId, now);
+
+            let fireflyPosition = Math.floor(Math.random() * 9);
+
+            function createButtons() {
+              return Array.from({ length: 9 }, (_, i) =>
+                new ButtonBuilder()
+                  .setCustomId(`firefly_${i}`)
+                  .setEmoji(i === fireflyPosition ? fireflyEmoji : emptyEmoji)
+                  .setStyle(ButtonStyle.Secondary)
+              );
+            }
+
+            const embed = new EmbedBuilder()
+              .setTitle("Catch the Firefly!")
+              .setDescription(
+                "Click the button where you think the firefly is hiding!"
+              )
+              .setColor(0xffd700);
+
+            const rows = [
+              new ActionRowBuilder().addComponents(createButtons().slice(0, 3)),
+              new ActionRowBuilder().addComponents(createButtons().slice(3, 6)),
+              new ActionRowBuilder().addComponents(createButtons().slice(6, 9)),
+            ];
+
+            const reply = await interaction.reply({
+              embeds: [embed],
+              components: rows,
+              fetchReply: true,
+            });
+
+            const filter = (btnInteraction) =>
+              btnInteraction.user.id === interaction.user.id;
+
+            const collector = reply.createMessageComponentCollector({
+              filter,
+              time: 2 * 60 * 1000,
+            }); // 2 minutes max game time
+
+            let caught = false;
+
+            // Firefly moves every 1.5 seconds
+            const movementInterval = setInterval(async () => {
+              fireflyPosition = Math.floor(Math.random() * 9);
+              console.log(fireflyPosition);
+              const updatedRows = [
+                new ActionRowBuilder().addComponents(
+                  createButtons().slice(0, 3)
+                ),
+                new ActionRowBuilder().addComponents(
+                  createButtons().slice(3, 6)
+                ),
+                new ActionRowBuilder().addComponents(
+                  createButtons().slice(6, 9)
+                ),
+              ];
+
+              await interaction.editReply({ components: updatedRows });
+            }, 1500);
+
+            collector.on("collect", async (btnInteraction) => {
+              await btnInteraction.deferUpdate();
+              collector.stop();
+
+              clearInterval(movementInterval); // Stop movement once caught or missed
+              console.log(btnInteraction.customId);
+              if (btnInteraction.customId === `firefly_${fireflyPosition}`) {
+                caught = true;
+
+                const winEmbed = new EmbedBuilder()
+                  .setTitle("You caught a Firefly!")
+                  .setDescription("+1 🪰 firefly added to your collection.")
+                  .setColor(0x00ff00);
+
+                return await interaction.editReply({
+                  embeds: [winEmbed],
+                  components: [],
+                });
+
+                // Optional: Add database update logic here (increment firefly count).
+              } else {
+                const loseEmbed = new EmbedBuilder()
+                  .setTitle("Missed!")
+                  .setDescription(
+                    "That was the wrong button. The firefly escaped."
+                  )
+                  .setColor(0xff0000);
+
+                return await interaction.editReply({
+                  embeds: [loseEmbed],
+                  components: [],
+                });
+              }
+            });
+
+            collector.on("end", async () => {
+              clearInterval(movementInterval); // Stop movement if time runs out
+
+              if (!caught) {
+                const timeoutEmbed = new EmbedBuilder()
+                  .setTitle("Too Slow!")
+                  .setDescription(
+                    "You didn't react in time. The firefly flew away."
+                  )
+                  .setColor(0x7289da);
+
+                return await interaction.editReply({
+                  embeds: [timeoutEmbed],
+                  components: [],
+                });
+              }
+            });
             break;
           case "help":
             CommandsController.obuCommands(interaction);
             break;
-          case "flash":
-            await interaction.reply({
-              content: "Starting Rock-Paper-Scissors game...",
-              ephemeral: true, // Only visible to the user who triggered it
-            });
-            break;
-          case "setbump":
-            bumpController.setBump(interaction);
-            break;
+
           case "lasttell": // Fix: Remove `/`
             const game = await GameModel.findOne({
               GameStatus: true,

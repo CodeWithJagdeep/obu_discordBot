@@ -1,22 +1,207 @@
+const {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ComponentType,
+} = require("discord.js");
+
 const CommandsController = require("../Controllers/CommandsController");
 const Game = require("../Controllers/GameController");
 const { emotions } = require("../data/emotions");
 const UserActivity = require("../Models/UserActivity");
+const { resolveGame } = require("./GameEvents");
+const RpsModel = require("../Models/RpsModel");
+const {
+  generateLeaderboardRps,
+  generateLeaderboardImage,
+} = require("../utils/CanvaGenerator");
+const CountModel = require("../Models/EmotionsCount");
 
 const messageEvent = (client) => {
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return; // Ignore bot messages
 
     const command = message.content.toLowerCase().trim();
-    if (message.content.toLowerCase().startsWith("obu")) {
-      let hasActionKey = emotions.filter(
-        (state) => message.content.toLowerCase().includes(state) // Return true if message contains the state
+    if (message.content.toLowerCase().startsWith("f")) {
+      let hasActionKey = emotions.filter((state) =>
+        message.content.toLowerCase().includes(state)
       )[0];
 
-      if (hasActionKey) {
-        CommandsController.sendGif(message, hasActionKey);
-      } else if (message.content.toLowerCase().includes("commands")) {
+      if (message.content.toLowerCase().includes("commands")) {
         CommandsController.obuCommands(message);
+      } else if (
+        message.content.toLowerCase().includes("rps") &&
+        message.content.toLowerCase().includes("lb")
+      ) {
+        const gameData = await RpsModel.find({
+          guildId: message.guild.id,
+          challengerId: message.author.id,
+        }).sort({ playedAt: -1 });
+
+        if (gameData.length) {
+          const leaderboard = await generateLeaderboardRps(
+            gameData.slice(0, 5)
+          );
+
+          return await message.reply({ content: leaderboard });
+        } else {
+          return await message.reply({ content: `No previous game found.` });
+        }
+      } else if (message.content.toLowerCase().includes("rps")) {
+        let mentionId = message.mentions.users.map((user) => user.id);
+
+        if (mentionId.length > 0) {
+          mentionId = mentionId[0];
+        } else if (message.mentions.repliedUser) {
+          mentionId = message.mentions.repliedUser.id;
+        } else {
+          mentionId = "";
+        }
+
+        if (!mentionId) {
+          return message.reply("Please mention someone to challenge!");
+        }
+
+        await message.channel.send(
+          `<@${message.author.id}> challenged <@${mentionId}> to a game of Rock, Paper, Scissors!`
+        );
+
+        const row = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId(`rps_rock_${message.author.id}`)
+            .setLabel("Rock")
+            .setEmoji("🪨")
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
+            .setCustomId(`rps_paper_${message.author.id}`)
+            .setLabel("Paper")
+            .setEmoji("📄")
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
+            .setCustomId(`rps_scissors_${message.author.id}`)
+            .setLabel("Scissors")
+            .setEmoji("✂️")
+            .setStyle(ButtonStyle.Primary)
+        );
+
+        const opponentrow = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId(`rps_rock_${mentionId}`)
+            .setLabel("Rock")
+            .setEmoji("🪨")
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
+            .setCustomId(`rps_paper_${mentionId}`)
+            .setLabel("Paper")
+            .setEmoji("📄")
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
+            .setCustomId(`rps_scissors_${mentionId}`)
+            .setLabel("Scissors")
+            .setEmoji("✂️")
+            .setStyle(ButtonStyle.Primary)
+        );
+
+        const challengerMessage = await message.channel.send({
+          content: `<@${message.author.id}>, choose your move!`,
+          components: [row],
+        });
+
+        const opponentMessage = await message.channel.send({
+          content: `<@${mentionId}>, choose your move!`,
+          components: [opponentrow],
+        });
+
+        const collector = message.channel.createMessageComponentCollector({
+          componentType: ComponentType.Button,
+          time: 30000, // 30 seconds
+        });
+
+        const moves = {};
+
+        collector.on("collect", async (interaction) => {
+          if (
+            interaction.user.id !== message.author.id &&
+            interaction.user.id !== mentionId
+          ) {
+            return await interaction.reply({
+              content: "This isn't your game!",
+              ephemeral: true,
+            });
+          }
+
+          const [_, move, playerId] = interaction.customId.split("_");
+
+          if (moves[interaction.user.id]) {
+            return await interaction.reply({
+              content: "You've already chosen!",
+              ephemeral: true,
+            });
+          }
+
+          moves[interaction.user.id] = move;
+          await interaction.reply({
+            content: `You chose **${move}**!`,
+            ephemeral: true,
+          });
+
+          if (moves[message.author.id] && moves[mentionId]) {
+            collector.stop();
+            await resolveGame(message, message.author.id, mentionId, moves);
+          }
+        });
+
+        collector.on("end", async () => {
+          if (!moves[message.author.id] || !moves[mentionId]) {
+            await message.channel.send(
+              "Game cancelled — one or both players didn't choose in time."
+            );
+          }
+        });
+      } else if (message.content.toLowerCase().includes("lb") && hasActionKey) {
+        const actionData = await CountModel.find({
+          userId: message.author.id,
+        }).sort({ count: -1 });
+
+        const leaderboard = await generateLeaderboardImage(
+          actionData.slice(0, 5),
+          hasActionKey
+        );
+
+        return await message.reply({ content: leaderboard });
+      } else if (message.content.toLowerCase().includes("yn")) {
+        let question = message.content.split("yn")[1].trim();
+        if (!question) {
+          message.reply("Please provide a question after `yn`.");
+          return;
+        }
+        if (!question) {
+          return message.reply("You need to ask a proper yes/no question!");
+        }
+
+        // Randomly pick YES or NO (represented as letter arrays)
+        const responses = [
+          ["🇾", "🇪", "🇸"], // YES
+          ["🇳", "🇴"], // NO
+        ];
+
+        const chosenResponse =
+          responses[Math.floor(Math.random() * responses.length)];
+
+        // Delete the user's message
+        await message.delete();
+
+        // Send the bot's reply message with the question
+        const reply = await message.channel.send(
+          `🔮 ${message.author} asked: **_\n*${question}*\n\n*`
+        );
+
+        // React with each letter of the chosen response (Y-E-S or N-O)
+        for (const letter of chosenResponse) {
+          await reply.react(letter);
+        }
+      } else if (hasActionKey) {
+        CommandsController.sendGif(message, hasActionKey);
       }
     } else if (command.toLowerCase() == "spam") {
       CommandsController._handleSpam(message);
@@ -37,9 +222,6 @@ const messageEvent = (client) => {
         // If the user exists, increment the points
         user.points += 1;
         await user.save();
-        console.log(
-          `Updated points for ${message.author.username}: ${user.points}`
-        );
       } else {
         // If the user does not exist, create a new record
         await UserActivity.create({
@@ -48,7 +230,6 @@ const messageEvent = (client) => {
           username: message.author.username,
           points: 1, // Start with 1 point
         });
-        console.log(`Created new user record for ${message.author.username}`);
       }
     }
   });

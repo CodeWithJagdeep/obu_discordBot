@@ -7,11 +7,26 @@ const {
   wishes,
   reflectedEmotion,
 } = require("../data/emotions");
+const GifModel = require("../Models/GIfModel");
+const CountModel = require("../Models/EmotionsCount");
 
 class CommandsController {
   constructor() {}
 
   async findReleventGif(action) {
+    const result = await GifModel.findOne({
+      type: action,
+    });
+    if (result) {
+      let randomGif = Math.floor(Math.random() * result.gifs.length - 1);
+      let gifUrl = result.gifs[randomGif];
+
+      if (gifUrl) {
+        return gifUrl;
+      }
+
+      return { hasActionKey: true };
+    }
     try {
       const request = await axios.get(
         `https://tenor.googleapis.com/v2/search?q=anime+${action}&key=${TENOR_GIF_TOKEN}&client_key=${GOOGLE_CLIENT_ID}&limit=50`
@@ -33,23 +48,22 @@ class CommandsController {
 
   async sendGif(message, hasActionKey) {
     let gif = await this.findReleventGif(hasActionKey);
+    console.log(gif);
     if (gif) {
       try {
         let userId;
-
+        // console.log(userId);
         // Get mentioned user IDs
-        const mentionId = message.mentions.users.map((user) => user.id);
+        let mentionId = message.mentions.users.map((user) => user.id);
 
         // Prioritize mentions, then replied users, then fallback to author
         if (mentionId.length > 0) {
-          userId = mentionId[0];
+          mentionId = mentionId[0];
         } else if (message.mentions.repliedUser) {
-          userId = message.mentions.repliedUser.id;
+          mentionId = message.mentions.repliedUser.id;
         } else {
-          userId = message.author.id;
+          mentionId = "";
         }
-
-        console.log(userId);
 
         // Fetch the author's server nickname or username
         const authorMember = await message.guild.members.fetch(
@@ -57,17 +71,45 @@ class CommandsController {
         );
         const authorName = authorMember.nickname || authorMember.user.username;
 
-        // Get the user's profile picture
-        const avatarUrl = authorMember.user.displayAvatarURL({
-          dynamic: true,
-          size: 16,
-        });
+        // Optional: Fetch mentioned member if mentionId exists
+        let mentionName = "";
 
-        // console.log(message);
-        console.log(authorName);
+        if (mentionId) {
+          try {
+            const mentionIdMember = await message.guild.members.fetch(
+              mentionId
+            );
+
+            mentionName =
+              mentionIdMember.nickname || mentionIdMember.user.username;
+
+            const hasCount = await CountModel.findOne({
+              userId: message.author.id,
+              toUser: mentionId,
+              key: hasActionKey,
+            });
+            if (hasCount) {
+              hasCount.count += 1;
+              await hasCount.save();
+            } else {
+              await CountModel.create({
+                userName: authorName,
+                userId: message.author.id,
+                toUser: mentionId,
+                toUserName: mentionName,
+                key: hasActionKey,
+              });
+            }
+          } catch (error) {
+            console.log(error);
+            mentionName = "someone"; // Fallback if fetch fails
+          }
+        } else {
+          mentionName = ""; // Fallback if no mention
+        }
 
         let dynamicMessage =
-          reflectedEmotion(authorName, hasActionKey) ||
+          reflectedEmotion(authorName, hasActionKey, `${mentionName}`) ||
           `${authorName} wants to ${hasActionKey} you`;
 
         // Create the Embed
@@ -76,8 +118,6 @@ class CommandsController {
           // .setThumbnail(avatarUrl) // Add the user's profile picture // Green color
           .setTitle(`**${dynamicMessage}**`) // Makes the text bold
           .setImage(gif); // Display the gif as the main image
-
-        // Send the embed message
 
         // Send the embed as a reply to the message
         await message.channel.send({ embeds: [messageEmbed] });
