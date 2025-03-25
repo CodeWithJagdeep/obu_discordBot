@@ -29,6 +29,7 @@ const CommandsController = require("../Controllers/CommandsController");
 const { emotions } = require("../data/emotions");
 const CountModel = require("../Models/EmotionsCount");
 const { generateLeaderboardImage } = require("../utils/CanvaGenerator");
+const FireFlyController = require("../Controllers/FireFlyController");
 
 class CommandsBuilder {
   constructor(client, distube) {
@@ -111,143 +112,7 @@ class CommandsBuilder {
             break;
 
           case "firefly":
-            const fireflyEmoji = "🪰";
-            const emptyEmoji = "⬛";
-
-            // Cooldown map
-            const fireflyCooldowns = new Collection();
-            const cooldownTime = 4 * 60 * 1000; // 4 minutes cooldown
-
-            const userId = interaction.user.id;
-            const now = Date.now();
-
-            // Check cooldown
-            if (fireflyCooldowns.has(userId)) {
-              const expirationTime =
-                fireflyCooldowns.get(userId) + cooldownTime;
-              if (now < expirationTime) {
-                const timeLeft = Math.ceil((expirationTime - now) / 1000);
-                return interaction.reply({
-                  content: `⏳ Please wait **${timeLeft} seconds** before catching fireflies again!`,
-                  ephemeral: true,
-                });
-              }
-            }
-
-            // Set new cooldown
-            fireflyCooldowns.set(userId, now);
-
-            let fireflyPosition = Math.floor(Math.random() * 9);
-
-            function createButtons() {
-              return Array.from({ length: 9 }, (_, i) =>
-                new ButtonBuilder()
-                  .setCustomId(`firefly_${i}`)
-                  .setEmoji(i === fireflyPosition ? fireflyEmoji : emptyEmoji)
-                  .setStyle(ButtonStyle.Secondary)
-              );
-            }
-
-            const embed = new EmbedBuilder()
-              .setTitle("Catch the Firefly!")
-              .setDescription(
-                "Click the button where you think the firefly is hiding!"
-              )
-              .setColor(0xffd700);
-
-            const rows = [
-              new ActionRowBuilder().addComponents(createButtons().slice(0, 3)),
-              new ActionRowBuilder().addComponents(createButtons().slice(3, 6)),
-              new ActionRowBuilder().addComponents(createButtons().slice(6, 9)),
-            ];
-
-            const reply = await interaction.reply({
-              embeds: [embed],
-              components: rows,
-              fetchReply: true,
-            });
-
-            const filter = (btnInteraction) =>
-              btnInteraction.user.id === interaction.user.id;
-
-            const collector = reply.createMessageComponentCollector({
-              filter,
-              time: 2 * 60 * 1000,
-            }); // 2 minutes max game time
-
-            let caught = false;
-
-            // Firefly moves every 1.5 seconds
-            const movementInterval = setInterval(async () => {
-              fireflyPosition = Math.floor(Math.random() * 9);
-              console.log(fireflyPosition);
-              const updatedRows = [
-                new ActionRowBuilder().addComponents(
-                  createButtons().slice(0, 3)
-                ),
-                new ActionRowBuilder().addComponents(
-                  createButtons().slice(3, 6)
-                ),
-                new ActionRowBuilder().addComponents(
-                  createButtons().slice(6, 9)
-                ),
-              ];
-
-              await interaction.editReply({ components: updatedRows });
-            }, 1500);
-
-            collector.on("collect", async (btnInteraction) => {
-              await btnInteraction.deferUpdate();
-              collector.stop();
-
-              clearInterval(movementInterval); // Stop movement once caught or missed
-              console.log(btnInteraction.customId);
-              if (btnInteraction.customId === `firefly_${fireflyPosition}`) {
-                caught = true;
-
-                const winEmbed = new EmbedBuilder()
-                  .setTitle("You caught a Firefly!")
-                  .setDescription("+1 🪰 firefly added to your collection.")
-                  .setColor(0x00ff00);
-
-                return await interaction.editReply({
-                  embeds: [winEmbed],
-                  components: [],
-                });
-
-                // Optional: Add database update logic here (increment firefly count).
-              } else {
-                const loseEmbed = new EmbedBuilder()
-                  .setTitle("Missed!")
-                  .setDescription(
-                    "That was the wrong button. The firefly escaped."
-                  )
-                  .setColor(0xff0000);
-
-                return await interaction.editReply({
-                  embeds: [loseEmbed],
-                  components: [],
-                });
-              }
-            });
-
-            collector.on("end", async () => {
-              clearInterval(movementInterval); // Stop movement if time runs out
-
-              if (!caught) {
-                const timeoutEmbed = new EmbedBuilder()
-                  .setTitle("Too Slow!")
-                  .setDescription(
-                    "You didn't react in time. The firefly flew away."
-                  )
-                  .setColor(0x7289da);
-
-                return await interaction.editReply({
-                  embeds: [timeoutEmbed],
-                  components: [],
-                });
-              }
-            });
+            FireFlyController.startGame(interaction);
             break;
           case "help":
             CommandsController.obuCommands(interaction);

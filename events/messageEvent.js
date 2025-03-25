@@ -16,6 +16,7 @@ const {
   generateLeaderboardImage,
 } = require("../utils/CanvaGenerator");
 const CountModel = require("../Models/EmotionsCount");
+const FireFlyController = require("../Controllers/FireFlyController");
 
 const messageEvent = (client) => {
   client.on("messageCreate", async (message) => {
@@ -47,7 +48,9 @@ const messageEvent = (client) => {
         } else {
           return await message.reply({ content: `No previous game found.` });
         }
-      } else if (message.content.toLowerCase().includes("rps")) {
+      } else if (message.content.split(" ")[1] === "help") {
+        CommandsController.obuCommands(message);
+      } else if (message.content.split(" ")[1] === "rps") {
         let mentionId = message.mentions.users.map((user) => user.id);
 
         if (mentionId.length > 0) {
@@ -169,6 +172,9 @@ const messageEvent = (client) => {
         );
 
         return await message.reply({ content: leaderboard });
+      } else if (message.content.split(" ")[1] === "firefly") {
+        console.log("gere");
+        return FireFlyController.startGame(message, message.author.id);
       } else if (message.content.toLowerCase().includes("yn")) {
         let question = message.content.split("yn")[1].trim();
         if (!question) {

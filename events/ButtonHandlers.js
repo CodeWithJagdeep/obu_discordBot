@@ -73,5 +73,50 @@ module.exports = async (interaction, distube) => {
         ephemeral: true,
       });
     }
+  } else if (customId === "Actions") {
+    let updatedEmbed;
+    updatedEmbed = new EmbedBuilder()
+      .setColor(0x3498db)
+      .setTitle("🎭 Actions Commands")
+      .setDescription(
+        "**These are the action-related commands. Click on them to use.**\n\n" +
+          "🔹 f **bite** <@user> - Bite your target!\n" +
+          "🔹 f **hug** <@user> - Hug someone with love!\n" +
+          "🔹 f **kick** <@user> - Kick your target for fun!\n" +
+          "🔹 f **kill** <@user> - Self-explanatory.\n" +
+          "🔹 f **kiss** <@user> - A sweet kiss for someone special.\n" +
+          "🔹 f **lick** <@user> - Lick your target.\n" +
+          "🔹 f **spank** <@user> - Spank someone for fun.\n" +
+          "🔹 f **wave** <@user> - Wave to everyone!\n" +
+          "🔹 f **stab** <@user> - Stab an innocent soul.\n" +
+          "🔹 f **slap** <@user> - Smack someone's face."
+      );
+    if (interaction.customId === "Actions") {
+    } else if (interaction.customId === "") {
+    } else if (interaction.customId === "Fun") {
+    }
+
+    return await interaction.update({ embeds: [updatedEmbed] });
+  } else if (customId === "Games") {
+    let updatedEmbed = new EmbedBuilder()
+      .setColor(0x00bfff) // Blue color
+      .setTitle("🎮 Games Commands")
+      .setDescription(
+        "**Enjoy these game-related commands!**\n\n" +
+          "**/rps** - Play Rock, Paper, Scissors!\n" +
+          "**/firefly** - Catch the firefly before it flies away.\n" +
+          "**/storytell** - an exciting game where strategy, quick thinking, and teamwork are key!!"
+      );
+    return await interaction.update({ embeds: [updatedEmbed] });
+  } else if (customId === "Fun") {
+    let updatedEmbed = new EmbedBuilder()
+      .setColor(0x8e44ad) // Purple color
+      .setTitle("😂 Fun Commands")
+      .setDescription(
+        "**Get your fun dose with these commands!**\n\n" +
+          "**yn** - Using AI and Machine Learning, a rational answer to the question is given.\n" +
+          "**F** - Pay your respects to someone."
+      );
+    return await interaction.update({ embeds: [updatedEmbed] });
   }
 };

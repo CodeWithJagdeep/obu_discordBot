@@ -38,12 +38,7 @@ async function resolveGame(message, challengerId, opponentId, moves) {
     alreadyPlayed.loss += loss;
     await alreadyPlayed.save();
     // Announce the result
-    return await message.channel.send(
-      `**Game Result:**\n` +
-        `<@${challengerId}> chose **${challengerMove}**.\n` +
-        `<@${opponentId}> chose **${opponentMove}**.\n` +
-        `**${result}**`
-    );
+    return await message.channel.send(`**Game Result:**\n` + `**${result}** `);
   } else {
     await RpsModel.create({
       challengerId: challengerId,

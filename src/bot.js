@@ -99,7 +99,7 @@ class MyBot {
           messageEvent(this.client);
           _handleKickedMember(this.client);
 
-          this._dummyRequest();
+          // this._dummyRequest();
         } catch (error) {
           console.error("❌ Error initializing bot events:", error);
         }

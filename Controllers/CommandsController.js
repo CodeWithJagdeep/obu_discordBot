@@ -1,6 +1,11 @@
 const { TENOR_GIF_TOKEN, GOOGLE_CLIENT_ID } = require("../config/env");
 const axios = require("axios");
-const { EmbedBuilder } = require("discord.js");
+const {
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+} = require("discord.js");
 const {
   obuCommands,
   specialOcc,
@@ -11,7 +16,22 @@ const GifModel = require("../Models/GIfModel");
 const CountModel = require("../Models/EmotionsCount");
 
 class CommandsController {
-  constructor() {}
+  constructor() {
+    this.row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("Actions")
+        .setLabel("Actions")
+        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId("Games")
+        .setLabel("Games")
+        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId("Fun")
+        .setLabel("Fun")
+        .setStyle(ButtonStyle.Primary)
+    );
+  }
 
   async findReleventGif(action) {
     const result = await GifModel.findOne({
@@ -48,7 +68,6 @@ class CommandsController {
 
   async sendGif(message, hasActionKey) {
     let gif = await this.findReleventGif(hasActionKey);
-    console.log(gif);
     if (gif) {
       try {
         let userId;
@@ -136,34 +155,14 @@ class CommandsController {
 
     const commandEmbed = new EmbedBuilder()
       .setColor(0x00ff00) // Green color
-      .setTitle("🤖 OBU Bot Commands")
-      .setDescription("Here are the available commands:")
-      .addFields(
-        {
-          name: "`obu [emotion] [@user]`",
-          value: "Send a GIF based on the emotion.",
-        },
-        { name: "`obu commands`", value: "Show available commands." },
-        { name: "`!help`", value: "Display this help message." },
-        {
-          name: "`!startdiary [@user]`",
-          value:
-            "Welcome to **Shadow Tactics**, an exciting game where strategy, quick thinking, and teamwork are key!",
-        }
-      )
-      .setFooter({ text: "Explore all available emotions!" });
+      .setTitle("🤖 Help Menu")
+      .setDescription(
+        "Click on a category to see the commands in that category."
+      );
 
-    const embed = new EmbedBuilder()
-      .setColor(0x00ff00) // Green color
-      .setTitle("Emotions Commands List")
-      .setDescription(obuCommands) // Insert the emotions message here
-      .setTimestamp()
-      .setFooter({ text: "Explore all available emotions!" });
-
-    // Send the embed to the welcome channel
     return await message.reply({
-      content: `Here's list of obu commands <@${userId}>`,
-      embeds: [commandEmbed, embed],
+      embeds: [commandEmbed],
+      components: this.row ? [this.row] : [], // Ensure components exist
     });
   }
   async _handleSpam(message) {
