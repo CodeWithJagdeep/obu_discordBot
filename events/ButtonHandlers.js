@@ -76,37 +76,38 @@ module.exports = async (interaction, distube) => {
   } else if (customId === "Actions") {
     let updatedEmbed;
     updatedEmbed = new EmbedBuilder()
-      .setColor(0x3498db)
-      .setTitle("🎭 Actions Commands")
+      .setColor(0x1abc9c) // A nice teal-green
+      .setTitle("🎭 Action Commands")
       .setDescription(
-        "**These are the action-related commands. Click on them to use.**\n\n" +
-          "🔹 f **bite** <@user> - Bite your target!\n" +
-          "🔹 f **hug** <@user> - Hug someone with love!\n" +
-          "🔹 f **kick** <@user> - Kick your target for fun!\n" +
-          "🔹 f **kill** <@user> - Self-explanatory.\n" +
-          "🔹 f **kiss** <@user> - A sweet kiss for someone special.\n" +
-          "🔹 f **lick** <@user> - Lick your target.\n" +
-          "🔹 f **spank** <@user> - Spank someone for fun.\n" +
-          "🔹 f **wave** <@user> - Wave to everyone!\n" +
-          "🔹 f **stab** <@user> - Stab an innocent soul.\n" +
-          "🔹 f **slap** <@user> - Smack someone's face."
-      );
-    if (interaction.customId === "Actions") {
-    } else if (interaction.customId === "") {
-    } else if (interaction.customId === "Fun") {
-    }
+        "✨ **Spice up your interactions with these fun commands!** ✨\n\n" +
+          "🦷 **f bite** `<@user>` → Bite your target like a vampire! 🧛\n" +
+          "🤗 **f hug** `<@user>` → Wrap someone in a warm hug! ❤️\n" +
+          "🥾 **f kick** `<@user>` → Give your target a playful kick! 😆\n" +
+          "⚔️ **f kill** `<@user>` → *Finish them…* 💀\n" +
+          "💋 **f kiss** `<@user>` → Share a sweet kiss with someone special! 💞\n" +
+          "👅 **f lick** `<@user>` → Lick your target (weird, but okay 🤨).\n" +
+          "🍑 **f spank** `<@user>` → Spank someone for fun! 😉\n" +
+          "👋 **f wave** `<@user>` → Wave and say hello! 🌊\n" +
+          "🔪 **f stab** `<@user>` → Stab an innocent soul (ouch 😬).\n" +
+          "🖐️ **f slap** `<@user>` → Smack someone right across the face! 😂"
+      )
+      .setFooter({ text: "Use wisely… or chaotically 😈" })
+      .setThumbnail("https://i.imgur.com/6KJ1N4H.png"); // Optional fun icon
 
     return await interaction.update({ embeds: [updatedEmbed] });
   } else if (customId === "Games") {
     let updatedEmbed = new EmbedBuilder()
-      .setColor(0x00bfff) // Blue color
-      .setTitle("🎮 Games Commands")
+      .setColor(0x00bfff) // Bright Sky Blue
+      .setTitle("🎮 Game Commands")
       .setDescription(
-        "**Enjoy these game-related commands!**\n\n" +
-          "**/rps** - Play Rock, Paper, Scissors!\n" +
-          "**/firefly** - Catch the firefly before it flies away.\n" +
-          "**/storytell** - an exciting game where strategy, quick thinking, and teamwork are key!!"
-      );
+        "✨ **Level up your fun with these awesome games!** ✨\n\n" +
+          "✊📄✂️ **/rps** → Challenge your friends in Rock, Paper, Scissors!\n" +
+          "🪰✨ **/firefly** → Try to catch the glowing firefly before it escapes!\n" +
+          "📖🎭 **/storytell** → A thrilling game of strategy, quick thinking, and teamwork!"
+      )
+      .setThumbnail("https://i.imgur.com/8Km9tLL.png") // Optional: fun game icon
+      .setFooter({ text: "Play smart. Play fun. 🕹️" });
+
     return await interaction.update({ embeds: [updatedEmbed] });
   } else if (customId === "Fun") {
     let updatedEmbed = new EmbedBuilder()

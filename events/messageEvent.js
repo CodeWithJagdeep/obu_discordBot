@@ -3,6 +3,7 @@ const {
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
+  EmbedBuilder,
 } = require("discord.js");
 
 const CommandsController = require("../Controllers/CommandsController");
@@ -18,6 +19,39 @@ const {
 const CountModel = require("../Models/EmotionsCount");
 const FireFlyController = require("../Controllers/FireFlyController");
 
+// ---------- RPS helpers (ADD) ----------
+const RPS = ["rock", "paper", "scissors"];
+const EMOJI = { rock: "🪨", paper: "📄", scissors: "✂️" };
+const pickBotMove = () => RPS[Math.floor(Math.random() * RPS.length)];
+const judge = (a, b) => {
+  if (a === b) return "draw";
+  return (a === "rock" && b === "scissors") ||
+    (a === "paper" && b === "rock") ||
+    (a === "scissors" && b === "paper")
+    ? "a"
+    : "b";
+};
+
+async function resolveSolo(message, playerId, playerMove, botMove) {
+  const result = judge(playerMove, botMove);
+  const embed = new EmbedBuilder()
+    .setColor(0x00bfff)
+    .setTitle("✊📄✂️ Rock, Paper, Scissors — You vs Bot")
+    .setDescription(
+      [
+        `**You** chose ${EMOJI[playerMove]} **${playerMove}**`,
+        `**Bot** chose ${EMOJI[botMove]} **${botMove}**`,
+        "",
+        result === "draw"
+          ? "🤝 It's a **draw**!"
+          : result === "a"
+          ? "🏆 **You win!**"
+          : "😵 **Bot wins!**",
+      ].join("\n")
+    );
+
+  await message.channel.send({ embeds: [embed] });
+}
 const messageEvent = (client) => {
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return; // Ignore bot messages
@@ -61,8 +95,92 @@ const messageEvent = (client) => {
           mentionId = "";
         }
 
+        // SOLO MODE (no mention): user vs Bot
         if (!mentionId) {
-          return message.reply("Please mention someone to challenge!");
+          const soloRow = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+              .setCustomId(`rps_solo_rock_${message.author.id}`)
+              .setLabel("Rock")
+              .setEmoji("🪨")
+              .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+              .setCustomId(`rps_solo_paper_${message.author.id}`)
+              .setLabel("Paper")
+              .setEmoji("📄")
+              .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+              .setCustomId(`rps_solo_scissors_${message.author.id}`)
+              .setLabel("Scissors")
+              .setEmoji("✂️")
+              .setStyle(ButtonStyle.Primary)
+          );
+
+          const promptMsg = await message.channel.send({
+            content: `🎮 <@${message.author.id}>, pick your move to challenge **Bot**!`,
+            components: [soloRow],
+          });
+
+          const collector = message.channel.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            time: 30000, // 30s
+          });
+
+          let chosen = false;
+
+          collector.on("collect", async (interaction) => {
+            const parts = interaction.customId.split("_"); // rps_solo_move_userId
+            if (parts[0] !== "rps" || parts[1] !== "solo") return;
+
+            const move = parts[2];
+            const targetUserId = parts[3];
+
+            if (interaction.user.id !== message.author.id) {
+              return interaction.reply({
+                content: "Not your game!",
+                ephemeral: true,
+              });
+            }
+            if (interaction.user.id !== targetUserId) {
+              return interaction.reply({
+                content: "Invalid session.",
+                ephemeral: true,
+              });
+            }
+            if (chosen) {
+              return interaction.reply({
+                content: "You already chose!",
+                ephemeral: true,
+              });
+            }
+
+            chosen = true;
+            await interaction.reply({
+              content: `You chose **${move}** ${EMOJI[move]}!`,
+              ephemeral: true,
+            });
+            collector.stop();
+
+            // Disable buttons after selection (polish)
+            try {
+              await promptMsg.edit({ components: [] });
+            } catch {}
+
+            const botMove = pickBotMove();
+            await resolveSolo(message, message.author.id, move, botMove);
+          });
+
+          collector.on("end", async () => {
+            if (!chosen) {
+              try {
+                await promptMsg.edit({ components: [] });
+              } catch {}
+              await message.channel.send(
+                "⌛ Game cancelled — no move selected in time."
+              );
+            }
+          });
+
+          return; // stop here in solo mode
         }
 
         await message.channel.send(
