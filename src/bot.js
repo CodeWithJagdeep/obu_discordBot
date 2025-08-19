@@ -67,7 +67,7 @@ class MyBot {
   async _dummyRequest() {
     setInterval(async () => {
       try {
-        await axios.get("https://lazy-bot-jd5m.onrender.com");
+        await axios.get("https://obu-discordbot.onrender.com");
         console.log("Sent dummy request to keep bot alive.");
       } catch (err) {
         console.log("");
@@ -99,7 +99,7 @@ class MyBot {
           messageEvent(this.client);
           _handleKickedMember(this.client);
 
-          // this._dummyRequest();
+          this._dummyRequest();
         } catch (error) {
           console.error("❌ Error initializing bot events:", error);
         }
